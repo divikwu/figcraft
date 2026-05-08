@@ -502,20 +502,38 @@ AI 调用 `get_mode` 时根据库状态自动选择 guardian 或 creator，funda
 
 **反模式：** 不要在 Skill 中写死颜色值、间距规则、布局约束——这些全部由 `get_mode` 和 `get_design_guidelines` 运行时提供。
 
-### 6.5 autoApprove 配置建议
+### 6.5 自动批准（auto-approve）配置
 
-在 IDE 配置中设置 `autoApprove` 可避免每次工具调用的手动确认弹窗：
+每个 IDE 的自动批准机制不同，**不能跨 IDE 复用同一个 `autoApprove` 字段**：
 
-**安全级别分类：**
+| IDE | 配置文件 | 字段 | 工具名格式 |
+|---|---|---|---|
+| **Claude Code** | `.claude/settings.json`（项目级，已 commit） | `permissions.allow` | `mcp__figcraft__<tool>` |
+| **Kiro** | `.kiro/settings/mcp.json`（项目级，已 commit） | `mcpServers.figcraft.autoApprove` | 裸工具名（如 `create_frame`） |
+| **Cursor** | `~/.cursor/permissions.json`（**用户级**，不能 commit） | `mcpAllowlist` | `figcraft:<tool>` 或 `figcraft:*` |
+
+> ⚠️ **常见误解**：`.mcp.json`（Claude Code 用）里写 `autoApprove` 字段会被**完全忽略**——这是 Cursor/Kiro 的扩展字段，不是 MCP 标准。Claude Code 唯一的入口是 `.claude/settings.json` → `permissions.allow`。
+
+**已预设的列表**（fork 仓库即可获得）：所有 119 个 figcraft MCP 工具均已加入 `.claude/settings.json` 和 `.kiro/settings/mcp.json`。Cursor 用户需要自己在用户目录创建 `~/.cursor/permissions.json`：
+
+```json
+{
+  "mcpAllowlist": ["figcraft:*", "figma-desktop:*"]
+}
+```
+
+**安全级别分类**（如需手动收紧）：
 
 | 级别 | 工具示例 | 建议 |
 |---|---|---|
-| 只读（零风险） | `ping`, `get_mode`, `get_current_page`, `list_toolsets`, `get_selection` | 始终 autoApprove |
-| 创建（可撤销） | `create_frame`, `create_text`, `icon_create`, `load_toolset` | 推荐 autoApprove |
-| 修改（可逆但需注意） | `nodes(update)`, `lint_fix_all`, `set_mode` | 按需 autoApprove |
-| 删除（不可逆） | `nodes(delete)`, `delete_variable` | 谨慎考虑 |
+| 只读（零风险） | `ping`, `get_mode`, `get_current_page`, `list_toolsets`, `get_selection` | 始终自动批准 |
+| 创建（可撤销） | `create_frame`, `create_text`, `icon_create`, `load_toolset` | 推荐自动批准 |
+| 修改（可逆但需注意） | `nodes`, `lint_fix_all`, `set_mode` | 按需自动批准 |
+| 删除/破坏性 | `delete_node`, `delete_component`, `discard_changes`, `execute_js`, `figma_logout` | 谨慎考虑 |
 
-> 完整 autoApprove 列表可参考项目根目录 `.mcp.json` 中的配置。
+> ⚠️ Endpoint 工具（`nodes` / `text` / `components` / `variables_ep` / `styles_ep`）一旦自动批准，其内部所有 method（含 `delete`、`update`）都会被隐含放行——IDE 看不到 method dispatch。
+
+**保持同步**：修改 `schema/tools.yaml` 后，运行 `npm run schema` 会自动重新生成 `_registry.ts` 并把最新工具列表 sync 到 `.claude/settings.json` 和 `.kiro/settings/mcp.json`（脚本：`scripts/sync-auto-approve.mjs`）。
 
 ---
 
