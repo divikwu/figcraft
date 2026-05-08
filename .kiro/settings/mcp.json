@@ -1,0 +1,79 @@
+{
+  "mcpServers": {
+    "figma-desktop": {
+      "url": "http://127.0.0.1:3845/mcp",
+      "type": "http",
+      "disabled": false,
+      "autoApprove": [
+        "get_design_context",
+        "get_metadata",
+        "get_screenshot",
+        "get_variable_defs",
+        "get_code_connect_map",
+        "add_code_connect_map",
+        "get_code_connect_suggestions",
+        "send_code_connect_mappings",
+        "create_design_system_rules",
+        "search_design_system",
+        "get_figjam",
+        "generate_diagram",
+        "use_figma"
+      ]
+    },
+    "figcraft": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "packages/figcraft-design/src/index.ts"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "ping",
+        "get_current_page",
+        "get_document_info",
+        "get_selection",
+        "get_mode",
+        "set_mode",
+        "get_channel",
+        "join_channel",
+        "get_design_guidelines",
+        "get_creation_guide",
+        "list_fonts",
+        "list_toolsets",
+        "load_toolset",
+        "unload_toolset",
+        "set_current_page",
+        "set_selection",
+        "save_version_history",
+        "export_image",
+        "audit_node",
+        "lint_fix_all",
+        "verify_design",
+        "create_frame",
+        "create_text",
+        "create_svg",
+        "create_component",
+        "create_component_set",
+        "create_component_from_node",
+        "layout_component_set",
+        "bind_component_property",
+        "create_section",
+        "nodes",
+        "text",
+        "text_scan",
+        "components",
+        "execute_js",
+        "icon_search",
+        "icon_create",
+        "icon_collections",
+        "image_search",
+        "image_preview",
+        "search_design_system",
+        "variables_ep",
+        "styles_ep",
+        "get_design_context"
+      ],
+      "disabledTools": []
+    }
+  }
+}
