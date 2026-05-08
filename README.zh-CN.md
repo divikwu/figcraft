@@ -94,38 +94,60 @@ Figma 提供两种部署方式：
 
 各 IDE 的配置文件路径不同，展开查看：
 
+> 📦 **如果你 fork 了本仓库直接使用**，三份项目级配置已经预先 commit：`.cursor/mcp.json`、`.mcp.json`、`.kiro/settings/mcp.json`，外加 `.claude/settings.json`（Claude Code 的自动批准入口）。**每个 IDE 的自动批准机制不同，不能跨 IDE 复用同一字段** —— 详见下方分 IDE 说明，或参考 [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) 的完整对照表。
+
 <details>
 <summary><strong>Cursor</strong> — <code>.cursor/mcp.json</code></summary>
 
 在项目根目录创建 `.cursor/mcp.json`，写入上面的通用配置即可。
+
+**自动批准**：Cursor **不会**从 `.cursor/mcp.json` 自动批准工具，需要在用户目录创建 `~/.cursor/permissions.json`：
+
+```json
+{ "mcpAllowlist": ["figcraft:*", "figma-desktop:*"] }
+```
+
+（详见 [Cursor 官方权限文档](https://cursor.com/docs/reference/permissions)。需在 Cursor 设置中开启 Auto-Run 模式才生效。）
 </details>
 
 <details>
 <summary><strong>Claude Code</strong> — <code>.mcp.json</code></summary>
 
 在项目根目录创建 `.mcp.json`，写入上面的通用配置。
+
+**自动批准**：Claude Code **会忽略** `.mcp.json` 里的 `autoApprove` 字段（该字段是 Cursor/Kiro 的扩展，不是 MCP 标准）。需要用 `.claude/settings.json`：
+
+```json
+{
+  "permissions": {
+    "allow": ["mcp__figcraft__create_frame", "mcp__figcraft__nodes", "..."]
+  }
+}
+```
+
+本仓库预 commit 的 `.claude/settings.json` 已列出全部 119 个 figcraft 工具 + 13 个 figma-desktop 工具。修改 `schema/tools.yaml` 后运行 `npm run schema` 会自动同步。
 </details>
 
 <details>
 <summary><strong>Kiro</strong> — <code>.kiro/settings/mcp.json</code></summary>
 
-在项目根目录创建 `.kiro/settings/mcp.json`。Kiro 支持额外的 `autoApprove` 等字段：
+在项目根目录创建 `.kiro/settings/mcp.json`。Kiro 原生支持 `autoApprove`：
 
 ```json
 {
   "mcpServers": {
     "figcraft": {
-      "command": "node",
-      "args": ["dist/mcp-server/index.js"],
-      "cwd": "/your/absolute/path/to/figcraft",
+      "command": "npx",
+      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
+      "cwd": "${workspaceFolder}",
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": ["ping", "create_frame", "nodes", "..."]
     }
   }
 }
 ```
 
-工具名以 `mcp_figcraft_` 为前缀（如 `mcp_figcraft_ping`、`mcp_figcraft_lint_fix_all`）。
+本仓库预 commit 的 `.kiro/settings/mcp.json` 已自动批准全部 119 个 figcraft 工具。Kiro 中工具名以 `mcp_figcraft_` 为前缀（如 `mcp_figcraft_ping`、`mcp_figcraft_lint_fix_all`）。
 
 > **提示**：本仓库包含 `.kiro/steering/figcraft.md` 工作流指南，可复制到你的项目 `.kiro/steering/` 目录中使用。
 </details>

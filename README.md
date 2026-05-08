@@ -94,38 +94,60 @@ For full details, see the [official Figma MCP documentation](https://developers.
 
 Put it in the right file for your IDE:
 
+> 📦 **If you cloned this repo for fork-and-use**, the three project-level configs are already committed: `.cursor/mcp.json`, `.mcp.json`, `.kiro/settings/mcp.json` — plus `.claude/settings.json` for Claude Code's auto-approval. Each IDE has a different auto-approval mechanism — see the per-IDE notes below or [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) for the full table.
+
 <details>
 <summary><strong>Cursor</strong> — <code>.cursor/mcp.json</code></summary>
 
 Create `.cursor/mcp.json` in your project root with the config above.
+
+**Auto-approval** is configured separately at user level — Cursor does NOT auto-approve from `.cursor/mcp.json`. Create `~/.cursor/permissions.json`:
+
+```json
+{ "mcpAllowlist": ["figcraft:*", "figma-desktop:*"] }
+```
+
+(See [Cursor permissions docs](https://cursor.com/docs/reference/permissions). Auto-Run mode must be enabled in Cursor settings for the allowlist to apply.)
 </details>
 
 <details>
 <summary><strong>Claude Code</strong> — <code>.mcp.json</code></summary>
 
 Create `.mcp.json` in your project root with the config above.
+
+**Auto-approval**: Claude Code **ignores** any `autoApprove` field inside `.mcp.json` (that field is a Cursor/Kiro extension, not MCP standard). Use `.claude/settings.json` instead:
+
+```json
+{
+  "permissions": {
+    "allow": ["mcp__figcraft__create_frame", "mcp__figcraft__nodes", "..."]
+  }
+}
+```
+
+This repo's pre-committed `.claude/settings.json` already lists all 119 figcraft tools + 13 figma-desktop tools. Run `npm run schema` to regenerate after upstream tool changes.
 </details>
 
 <details>
 <summary><strong>Kiro</strong> — <code>.kiro/settings/mcp.json</code></summary>
 
-Create `.kiro/settings/mcp.json` in your project root. Kiro supports additional fields like `autoApprove`:
+Create `.kiro/settings/mcp.json` in your project root. Kiro supports `autoApprove` natively:
 
 ```json
 {
   "mcpServers": {
     "figcraft": {
-      "command": "node",
-      "args": ["dist/mcp-server/index.js"],
-      "cwd": "/your/absolute/path/to/figcraft",
+      "command": "npx",
+      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
+      "cwd": "${workspaceFolder}",
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": ["ping", "create_frame", "nodes", "..."]
     }
   }
 }
 ```
 
-Tools are exposed as `mcp_figcraft_*` (e.g. `mcp_figcraft_ping`, `mcp_figcraft_lint_fix_all`).
+This repo's pre-committed `.kiro/settings/mcp.json` already auto-approves all 119 figcraft tools. Tools are surfaced in Kiro as `mcp_figcraft_<tool>` (e.g. `mcp_figcraft_ping`).
 
 > **Tip**: This repo includes `.kiro/steering/figcraft.md` as a workflow guide. Copy it to your project's `.kiro/steering/` folder.
 </details>
