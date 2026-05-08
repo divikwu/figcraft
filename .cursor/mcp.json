@@ -6,7 +6,8 @@
     },
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"]
+      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
+      "cwd": "${workspaceFolder}"
     }
   }
 }

@@ -26,6 +26,7 @@
         "tsx",
         "packages/figcraft-design/src/index.ts"
       ],
+      "cwd": "${workspaceFolder}",
       "disabled": false,
       "autoApprove": [
         "ping",

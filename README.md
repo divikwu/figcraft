@@ -53,6 +53,8 @@ FigCraft handles both UI creation and design quality on its own. For even more c
 > **If you cloned this repo (step 1 above)**: MCP configs are already tracked at `.cursor/mcp.json`, `.mcp.json` (Claude Code), and `.kiro/settings/mcp.json`. Open the repo in your IDE and the FigCraft MCP server is wired up automatically — **skip to step 3**.
 >
 > Note: the tracked Claude Code and Kiro configs auto-approve all FigCraft tools by default — including destructive ones like `delete_node` and `execute_js`. Edit the local file to tighten if your trust model differs.
+>
+> Why the three configs aren't symmetric: Cursor and Kiro pass MCP server cwd as the filesystem root unless told otherwise, so they use `cwd: "${workspaceFolder}"` (variable substitution supported by VS Code-derived IDEs). Claude Code already defaults `cwd` to the project root for project-level `.mcp.json` and does not perform variable substitution — adding `${workspaceFolder}` there would be passed as a literal path and break the launch. Don't "normalize" the configs by force.
 
 The configs below are for using FigCraft **from a separate project** (e.g. your own app or design system repo).
 

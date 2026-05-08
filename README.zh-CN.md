@@ -53,6 +53,8 @@ FigCraft 本身就能创建 UI 和管理设计质量。如果想获得更多创�
 > **如果你 clone 了本仓库（上面的步骤 1）**：MCP 配置已追踪在 `.cursor/mcp.json`、`.mcp.json`（Claude Code）和 `.kiro/settings/mcp.json`。在 IDE 中打开仓库即自动加载 FigCraft MCP server，**直接跳到步骤 3**。
 >
 > 注意：追踪版的 Claude Code 和 Kiro 配置默认自动放行 FigCraft 全部工具（包括 `delete_node`、`execute_js` 等破坏性操作）。如果你的信任策略更严，编辑本地文件收紧即可。
+>
+> 三份配置为何不对称：Cursor 和 Kiro 启动 MCP server 时默认 cwd 是文件系统根，所以使用 `cwd: "${workspaceFolder}"`（VS Code 系 IDE 支持变量替换）。Claude Code 项目级 `.mcp.json` 默认 cwd 已经是仓库根，且不做变量替换——若加 `${workspaceFolder}` 会被当字面路径传给 spawn，反而崩溃。**别为了"统一"硬改**。
 
 下面的配置是用于**从其他项目**（你自己的 app、设计系统仓库等）使用 FigCraft 的场景。
 
