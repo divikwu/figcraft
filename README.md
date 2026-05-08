@@ -50,13 +50,11 @@ Then in Figma Desktop:
 
 FigCraft handles both UI creation and design quality on its own. For even more creation capabilities, you can add the [official Figma MCP server](https://developers.figma.com/docs/figma-mcp-server/) alongside it — both servers run in parallel and complement each other.
 
-> **If you cloned this repo (step 1 above)**: MCP configs are already tracked at `.cursor/mcp.json`, `.mcp.json` (Claude Code), and `.kiro/settings/mcp.json`. Open the repo in your IDE and the FigCraft MCP server is wired up automatically — **skip to step 3**.
+> **If you cloned this repo (step 1 above)**: MCP configs are already tracked at `.cursor/mcp.json`, `.mcp.json` (Claude Code), and `.kiro/settings/mcp.json`. They use the published `figcraft-design` package via `npx -y` — open the repo in your IDE and the FigCraft MCP server is wired up automatically with zero local-path dependency. **Skip to step 3**.
 >
 > Note: the tracked Claude Code and Kiro configs auto-approve all FigCraft tools by default — including destructive ones like `delete_node` and `execute_js`. Edit the local file to tighten if your trust model differs.
 
-The configs below are for using FigCraft **from a separate project** (e.g. your own app or design system repo).
-
-> **Note**: `figcraft-design` is not yet published to npm. You need to clone the repo first (step 1 above). Replace `cwd` below with the absolute path to your local clone.
+The config below is for using FigCraft **from a different project** (e.g. your own app or design system repo) — same shape as the tracked one, no `cwd` needed.
 
 FigCraft config (same for all IDEs):
 
@@ -65,8 +63,7 @@ FigCraft config (same for all IDEs):
   "mcpServers": {
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
-      "cwd": "/your/absolute/path/to/figcraft"
+      "args": ["-y", "figcraft-design"]
     }
   }
 }
@@ -122,8 +119,7 @@ Create `.kiro/settings/mcp.json` in your project root. Kiro supports additional 
   "mcpServers": {
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
-      "cwd": "/your/absolute/path/to/figcraft",
+      "args": ["-y", "figcraft-design"],
       "disabled": false,
       "autoApprove": []
     }
@@ -148,8 +144,7 @@ Open Antigravity → Agent dropdown → **Manage MCP Servers** → **View raw co
 ```toml
 [mcp_servers.figcraft]
 command = "npx"
-args = ["tsx", "packages/figcraft-design/src/index.ts"]
-cwd = "/your/absolute/path/to/figcraft"
+args = ["-y", "figcraft-design"]
 ```
 </details>
 

@@ -6,7 +6,7 @@
     },
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
+      "args": ["-y", "figcraft-design"],
       "autoApprove": [
         "add_collection_mode",
         "add_component_property",

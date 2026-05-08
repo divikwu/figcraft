@@ -23,8 +23,8 @@
     "figcraft": {
       "command": "npx",
       "args": [
-        "tsx",
-        "packages/figcraft-design/src/index.ts"
+        "-y",
+        "figcraft-design"
       ],
       "disabled": false,
       "autoApprove": [

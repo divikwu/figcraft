@@ -50,13 +50,11 @@ npm run build
 
 FigCraft 本身就能创建 UI 和管理设计质量。如果想获得更多创建能力，可以同时添加 [Figma 官方 MCP server](https://developers.figma.com/docs/figma-mcp-server/)，两个 server 并行运行、互相补充。
 
-> **如果你 clone 了本仓库（上面的步骤 1）**：MCP 配置已追踪在 `.cursor/mcp.json`、`.mcp.json`（Claude Code）和 `.kiro/settings/mcp.json`。在 IDE 中打开仓库即自动加载 FigCraft MCP server，**直接跳到步骤 3**。
+> **如果你 clone 了本仓库（上面的步骤 1）**：MCP 配置已追踪在 `.cursor/mcp.json`、`.mcp.json`（Claude Code）和 `.kiro/settings/mcp.json`。三份配置都通过 `npx -y` 调用已发布的 `figcraft-design` 包，**不依赖本地路径**——在 IDE 中打开仓库即自动加载 FigCraft MCP server，**直接跳到步骤 3**。
 >
 > 注意：追踪版的 Claude Code 和 Kiro 配置默认自动放行 FigCraft 全部工具（包括 `delete_node`、`execute_js` 等破坏性操作）。如果你的信任策略更严，编辑本地文件收紧即可。
 
-下面的配置是用于**从其他项目**（你自己的 app、设计系统仓库等）使用 FigCraft 的场景。
-
-> **注意**：`figcraft-design` 尚未发布到 npm，目前需要先 clone 仓库（上面的步骤 1）。下面的配置中 `cwd` 需要替换为你本地 clone 的实际绝对路径。
+下面的配置用于**从其他项目**（你自己的 app、设计系统仓库等）使用 FigCraft——与追踪版形状完全一致，无需 `cwd`。
 
 FigCraft 配置（所有 IDE 通用）：
 
@@ -65,8 +63,7 @@ FigCraft 配置（所有 IDE 通用）：
   "mcpServers": {
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
-      "cwd": "/your/absolute/path/to/figcraft"
+      "args": ["-y", "figcraft-design"]
     }
   }
 }
@@ -122,8 +119,7 @@ Figma 提供两种部署方式：
   "mcpServers": {
     "figcraft": {
       "command": "npx",
-      "args": ["tsx", "packages/figcraft-design/src/index.ts"],
-      "cwd": "/your/absolute/path/to/figcraft",
+      "args": ["-y", "figcraft-design"],
       "disabled": false,
       "autoApprove": []
     }
@@ -148,8 +144,7 @@ Figma 提供两种部署方式：
 ```toml
 [mcp_servers.figcraft]
 command = "npx"
-args = ["tsx", "packages/figcraft-design/src/index.ts"]
-cwd = "/your/absolute/path/to/figcraft"
+args = ["-y", "figcraft-design"]
 ```
 </details>
 
