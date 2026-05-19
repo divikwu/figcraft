@@ -28,11 +28,23 @@ export function registerPing(server: McpServer, bridge: Bridge): void {
           await bridge.connect();
           await bridge.discoverPluginChannel();
         } catch {
-          // Fall through to diagnosis
+          // Default relay URL failed — try multi-port discovery before giving up.
+          // This handles the case where relay is running on a non-default port
+          // (e.g. 3060 instead of 3055 because 3055 was occupied at relay startup).
+          try {
+            const switched = await bridge.discoverPluginRelay();
+            if (switched) {
+              await bridge.discoverPluginChannel();
+            }
+          } catch {
+            // Fall through to Stage 2 diagnosis
+          }
         }
       }
 
       // ── Stage 2: If still not connected, diagnose WHY ──
+      // At this point, both direct connect and multi-port discovery have been
+      // attempted in Stage 1. We only need to classify the failure for the user.
       if (!bridge.isConnected) {
         if (bridge.isEvicted) {
           return {
@@ -46,18 +58,6 @@ export function registerPing(server: McpServer, bridge: Bridge): void {
           };
         }
         if (!probe.pluginConnected) {
-          // Try cross-relay discovery: plugin may be on a different relay port
-          const switched = await bridge.discoverPluginRelay();
-          if (switched && bridge.isConnected) {
-            // Successfully switched — retry the ping
-            const start = Date.now();
-            try {
-              const result = (await bridge.request('ping', {})) as Record<string, unknown>;
-              return buildSuccessResponse(result, Date.now() - start, bridge.currentChannel);
-            } catch {
-              // Fall through to diagnostic
-            }
-          }
           return {
             content: [{ type: 'text' as const, text: JSON.stringify(diagnosticError('plugin_not_connected')) }],
           };
