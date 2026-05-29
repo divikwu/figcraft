@@ -220,6 +220,45 @@ describe('exportImageLogic', () => {
     const meta = JSON.parse((response.content[1] as { type: 'text'; text: string }).text);
     expect(meta.format).toBe('PNG');
   });
+
+  it('returns SVG as text content block (not image) to avoid API 400 errors', async () => {
+    const bridge = createMockBridge();
+    mockRequestWithFallback.mockResolvedValue({
+      result: { base64: 'PHN2Zz4=', format: 'SVG', size: 1024 },
+      source: 'plugin',
+    });
+
+    const response = await exportImageLogic(bridge, { nodeId: '1:23', format: 'SVG' });
+
+    assertValidMcpResponse(response);
+    // SVG must NOT use image content block — Claude API rejects image/svg+xml
+    expect(response.content.length).toBe(1);
+    expect(response.content[0].type).toBe('text');
+    const parsed = JSON.parse((response.content[0] as { type: 'text'; text: string }).text);
+    expect(parsed.format).toBe('SVG');
+    expect(parsed.size).toBe(1024);
+    expect(parsed.base64).toBeUndefined(); // base64 omitted to save context tokens
+    expect(parsed._note).toContain('cannot be previewed inline');
+  });
+
+  it('returns PDF as text content block (not image) to avoid API 400 errors', async () => {
+    const bridge = createMockBridge();
+    mockRequestWithFallback.mockResolvedValue({
+      result: { base64: 'JVBERi0=', format: 'PDF', size: 2048 },
+      source: 'plugin',
+    });
+
+    const response = await exportImageLogic(bridge, { nodeId: '1:23', format: 'PDF' });
+
+    assertValidMcpResponse(response);
+    expect(response.content.length).toBe(1);
+    expect(response.content[0].type).toBe('text');
+    const parsed = JSON.parse((response.content[0] as { type: 'text'; text: string }).text);
+    expect(parsed.format).toBe('PDF');
+    expect(parsed.size).toBe(2048);
+    expect(parsed.base64).toBeUndefined();
+    expect(parsed._note).toContain('cannot be previewed inline');
+  });
 });
 
 // ─── Property-Based Tests ───

@@ -530,9 +530,17 @@ export function registerLintHandlers(): void {
         const style = figma.getStyleById(match.id);
         if (style && style.type === 'TEXT') candidates.push(scoreStyle(style as TextStyle));
       }
-      // Also check local styles for semantic match even in library mode
-      const localStyles = await figma.getLocalTextStylesAsync();
-      for (const style of localStyles) candidates.push(scoreStyle(style));
+      // Fallback: if style registry has no match (styles never registered via AI),
+      // search remote text styles already imported into the file. These come from
+      // team libraries and are the correct source for library-mode fixes.
+      // Exclude non-remote (locally authored) styles to avoid the original bug
+      // where local styles were incorrectly used to "fix" foreign-style violations.
+      if (candidates.length === 0) {
+        const allStyles = await figma.getLocalTextStylesAsync();
+        for (const style of allStyles) {
+          if (style.remote) candidates.push(scoreStyle(style));
+        }
+      }
     }
 
     // Pick best: prefer semantic match, then closest size

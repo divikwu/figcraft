@@ -1399,7 +1399,10 @@ set_current_page:
 # ─── Export (core) ───
 
 export_image:
-  description: Export a Figma node as an image. Returns base64-encoded image data.
+  description: >-
+    Export a Figma node as an image. Returns base64-encoded image data.
+    Only PNG and JPG can be previewed inline in chat. SVG and PDF are returned
+    as base64 text data (not displayed visually) — use PNG for visual preview.
   toolset: core
   write: false
   handler: custom
