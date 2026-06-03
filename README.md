@@ -209,6 +209,7 @@ FigCraft creates UI directly in Figma — frames, text, SVG, components, variant
 
 - `create_frame` with inline `children` builds entire screen hierarchies in one call
 - `create_component` / `create_component_set` build reusable component libraries with variant guardrails
+- `create_image_frame_from_local` imports local PNG/JPEG/GIF files as image-filled frames; `fill_existing_image_from_local` replaces existing fills with edit access
 - After creating UI, the Harness Pipeline auto-verifies quality; or run `lint_fix_all` manually
 - Use `get_design_context` to extract node trees with resolved tokens for design-to-code workflows
 

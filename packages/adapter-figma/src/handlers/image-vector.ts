@@ -5,6 +5,7 @@
 import { simplifyNode } from '../adapters/node-simplifier.js';
 import { registerHandler } from '../registry.js';
 import { assertHandler, HandlerError } from '../utils/handler-error.js';
+import { type ImageScaleMode, imagePaintFromBase64 } from '../utils/image-paint.js';
 import type { TokenBindingFailure } from '../utils/node-helpers.js';
 import { applyCornerRadius, applyFill, applyStroke } from '../utils/node-helpers.js';
 import { findNodeByIdAsync } from '../utils/node-lookup.js';
@@ -93,22 +94,21 @@ export function registerImageVectorHandlers(): void {
   registerHandler('set_image_fill', async (params) => {
     const nodeId = params.nodeId as string;
     const imageData = params.imageData as string; // base64-encoded image
-    const scaleMode = ((params.scaleMode as string) ?? 'FILL').toUpperCase() as 'FILL' | 'FIT' | 'CROP' | 'TILE';
+    const scaleMode = ((params.scaleMode as string) ?? 'FILL').toUpperCase() as ImageScaleMode;
 
     const node = await findNodeByIdAsync(nodeId);
     assertHandler(node && 'fills' in node, `Node not found or does not support fills: ${nodeId}`, 'NOT_FOUND');
 
-    const bytes = figma.base64Decode(imageData);
-    const image = figma.createImage(bytes);
-
-    const imagePaint: ImagePaint = {
-      type: 'IMAGE',
-      scaleMode,
-      imageHash: image.hash,
-    };
-
+    const imagePaint = imagePaintFromBase64(imageData, scaleMode);
     (node as GeometryMixin).fills = [imagePaint];
-    return { ok: true, imageHash: image.hash };
+    return {
+      ok: true,
+      id: (node as SceneNode).id,
+      name: (node as SceneNode).name,
+      width: 'width' in node ? (node as SceneNode & { width: number }).width : 0,
+      height: 'height' in node ? (node as SceneNode & { height: number }).height : 0,
+      imageHash: imagePaint.imageHash,
+    };
   });
 
   registerHandler('create_vector', async (params) => {

@@ -26,6 +26,7 @@ import {
 import { assertHandler } from '../utils/handler-error.js';
 import type { Hint, StructuredHint } from '../utils/hint-aggregator.js';
 import { aggregateHints, structuredHintsToTyped } from '../utils/hint-aggregator.js';
+import { type ImageScaleMode, imagePaintFromBase64 } from '../utils/image-paint.js';
 import {
   applyCornerRadius,
   applyFill,
@@ -170,6 +171,8 @@ interface CreateContext {
   idHintsSeen: Set<string>;
   /** Detected target platform for font resolution. */
   platform: Platform;
+  /** Hash of the image fill created from local bytes, when present. */
+  imageHash?: string;
 }
 
 async function initCreateContext(): Promise<CreateContext> {
@@ -1154,8 +1157,17 @@ async function setupFrame(
     }
   }
 
-  // ── Image fill (URL or pexel:<id> — resolved by MCP server) ──
-  if (p.imageUrl) {
+  // ── Image fill (URL/pexel:<id> or local base64 bytes from MCP server) ──
+  if (typeof p.imageData === 'string' && p.imageData.length > 0) {
+    try {
+      const scaleMode = ((p.imageScaleMode as string | undefined) ?? 'FILL').toUpperCase() as ImageScaleMode;
+      const imagePaint = imagePaintFromBase64(p.imageData, scaleMode);
+      frame.fills = [imagePaint];
+      if (imagePaint.imageHash) ctx.imageHash = imagePaint.imageHash;
+    } catch (err) {
+      throw new Error(`imageData failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  } else if (p.imageUrl) {
     try {
       const url = p.imageUrl as string;
       const image = await figma.createImageAsync(url);
@@ -2233,6 +2245,7 @@ async function createSingleFrame(params: Record<string, unknown>, skipLint = fal
 
     const result = simplifyNode(frame);
     const out = result as unknown as Record<string, unknown>;
+    if (ctx.imageHash) out.imageHash = ctx.imageHash;
     if (ctx.libraryBindings.length > 0) out._libraryBindings = ctx.libraryBindings;
     // _hints removed — _typedHints carries the same info in structured form
     if (ctx.warnings.length > 0) out._warnings = ctx.warnings;

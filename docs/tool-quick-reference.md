@@ -75,6 +75,8 @@ FigCraft 在 `schema/tools.yaml` 中定义了 116 个工具，加上 3 个元工
 | `icon_collections` | 列出可用图标集 |
 | `image_search` | 搜索 Pexels 图库 |
 | `image_preview` | 预览 Pexels 图片 |
+| `create_image_frame_from_local` | 从本地 PNG/JPEG/GIF 创建图片 Frame |
+| `fill_existing_image_from_local` | 用本地 PNG/JPEG/GIF 替换已有节点图片填充（需要 edit 权限） |
 
 ### 搜索 & 扫描
 

@@ -188,7 +188,7 @@ cwd = "/your/absolute/path/to/figcraft"
 | 创建 | `create_frame`, `create_text`, `create_svg` |
 | 质量 | `lint_fix_all`, `verify_design`, `audit_node`, `get_design_guidelines`, `get_creation_guide` |
 | 导出 | `export_image`, `save_version_history` |
-| 图标 & 图片 | `icon_search`, `icon_create`, `icon_collections`, `image_search`, `image_preview` |
+| 图标 & 图片 | `icon_search`, `icon_create`, `icon_collections`, `image_search`, `image_preview`, `create_image_frame_from_local`, `fill_existing_image_from_local` |
 | 搜索 | `search_design_system`, `text_scan` |
 | 元工具 | `load_toolset`, `unload_toolset`, `list_toolsets` |
 
@@ -335,9 +335,11 @@ cwd = "/your/absolute/path/to/figcraft"
 
 常用图标集：`lucide`、`mdi`、`tabler`、`heroicons`、`ph`
 
-**图片**（Pexels 图库）：
+**图片**：
 1. `image_search("sunset")` — 搜索图片
 2. `create_frame({ imageUrl: "pexel:<id>" })` — 以图片填充 Frame
+3. `create_image_frame_from_local({ filePath: "/abs/path/image.png" })` — 从本地 PNG/JPEG/GIF 创建图片 Frame
+4. `fill_existing_image_from_local({ filePath: "/abs/path/image.png", nodeId: "1:23" })` — 替换已有节点图片填充（需要 edit 权限）
 
 ### 4.6 原型与交互
 

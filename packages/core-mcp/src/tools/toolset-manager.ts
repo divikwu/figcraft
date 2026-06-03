@@ -42,6 +42,7 @@ import { registerHelpTool } from './help.js';
 import { registerIconTools } from './iconify.js';
 import { registerLibraryStyleTools } from './library-styles.js';
 import { registerLintTools } from './lint.js';
+import { registerLocalImageTools } from './local-images.js';
 import { registerModeTools } from './mode.js';
 import { registerNodeTools } from './nodes.js';
 import { registerPexelsTools } from './pexels.js';
@@ -257,6 +258,7 @@ export function registerAllTools(server: McpServer, bridge: Bridge): void {
 
   // Register image tools (Pexels integration)
   registerPexelsTools(server);
+  registerLocalImageTools(server, bridge);
 
   // Register design system search
   registerSearchDesignSystemTool(server, bridge);

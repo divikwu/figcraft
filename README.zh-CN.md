@@ -207,6 +207,7 @@ FigCraft 直接在 Figma 中创建 UI — Frame、文本、SVG、组件、变体
 
 - `create_frame` 搭配 `children` 一次调用构建完整页面层级
 - `create_component` / `create_component_set` 构建可复用组件库，内置变体数量守卫
+- `create_image_frame_from_local` 将本地 PNG/JPEG/GIF 导入为图片 Frame；`fill_existing_image_from_local` 可在 edit 权限下替换已有图片填充
 - 创建后 Harness Pipeline 自动验证质量；也可手动运行 `lint_fix_all`
 - `get_design_context` 提取节点树 + 已解析的 Token 元数据，用于 design-to-code 工作流
 

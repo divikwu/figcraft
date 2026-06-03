@@ -1670,7 +1670,7 @@ image_search:
   description: >-
     Search stock photos by keyword via Pexels.
     Returns photo metadata (id, alt, dimensions, photographer).
-    To place a photo in Figma: use create_frame with set_image_fill.
+    To place a photo in Figma: use create_frame with the returned imageUrl.
     Requires PEXELS_API_KEY environment variable.
   toolset: core
   write: false
@@ -1725,6 +1725,106 @@ image_preview:
   response:
     type: object
     description: "Image content (base64) + photo metadata"
+
+create_image_frame_from_local:
+  description: >-
+    Create a new Figma frame filled with a local PNG/JPEG/GIF image read by the MCP Server.
+    filePath must be absolute. P0 rejects WebP and images above 4096px in width or height.
+    By default, scans current top-level page content and places the new frame to the right
+    when x/y are omitted or would overlap existing content.
+  toolset: core
+  write: true
+  access: create
+  handler: custom
+  params:
+    filePath:
+      type: string
+      required: true
+      description: "Absolute path to a local PNG/JPEG/GIF image"
+    parentId:
+      type: string
+      description: "Optional parent node ID. Defaults to current page."
+    name:
+      type: string
+      description: "Frame name. Defaults to the image filename without extension."
+    x:
+      type: number
+      description: "X position for the created frame. If it overlaps top-level page content, auto-placement moves it unless avoidOverlap=false."
+    y:
+      type: number
+      description: "Y position for the created frame. If it overlaps top-level page content, auto-placement moves it unless avoidOverlap=false."
+    width:
+      type: number
+      description: "Frame width. Defaults to original image width multiplied by scale."
+    height:
+      type: number
+      description: "Frame height. Defaults to original image height multiplied by scale."
+    scale:
+      type: number
+      description: "Frame size scale only; does not resize image bytes. Default 1."
+    scaleMode:
+      type: enum
+      values: [FILL, FIT, CROP, TILE]
+      description: "Image paint scale mode (default FILL)"
+    avoidOverlap:
+      type: boolean
+      description: "Default true. Auto-move to the right of top-level page content when x/y are omitted or overlap. Set false only for intentional overlap."
+  response:
+    type: object
+    fields:
+      id:
+        type: string
+      name:
+        type: string
+      width:
+        type: number
+      height:
+        type: number
+      imageHash:
+        type: string
+      source:
+        type: object
+      placement:
+        type: object
+
+fill_existing_image_from_local:
+  description: >-
+    Replace an existing Figma node fill with a local PNG/JPEG/GIF image read by the MCP Server.
+    Requires edit access because it modifies an existing node.
+  toolset: core
+  write: true
+  access: edit
+  handler: custom
+  params:
+    filePath:
+      type: string
+      required: true
+      description: "Absolute path to a local PNG/JPEG/GIF image"
+    nodeId:
+      type: string
+      required: true
+      description: "Target node ID. Node must support fills."
+    scaleMode:
+      type: enum
+      values: [FILL, FIT, CROP, TILE]
+      description: "Image paint scale mode (default FILL)"
+  response:
+    type: object
+    fields:
+      ok:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      width:
+        type: number
+      height:
+        type: number
+      imageHash:
+        type: string
+      source:
+        type: object
 
 # ─── SVG Creation (core) ───
 
@@ -7702,4 +7802,3 @@ _toolset_quickstart:
   tokens: 'sync_tokens({ filePath: "path/to/tokens.json" }) to sync DTCG tokens to Figma.'
   styles: 'Write tools enabled. styles_ep is already available (core) — use styles_ep(method: "list") to browse. This toolset adds write operations: register_library_styles, etc.'
   components-advanced: 'components(method: "list") to list local components.'
-

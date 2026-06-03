@@ -38,7 +38,7 @@ The following legacy flat tool names have been removed. Use the declarative tool
 | `create_instance` | `create_instance` (components-advanced toolset) |
 | `clone_node` | `nodes(method: "clone")` |
 | `insert_child` | `create_frame` children with `parentId` |
-| `set_image_fill` | `create_frame` with `imageUrl` param |
+| `set_image_fill` | Remote images: `create_frame` with `imageUrl`; local new frames: `create_image_frame_from_local`; local replacement: `fill_existing_image_from_local` |
 
 ### Variables Endpoint (core — always available, no toolset needed)
 

@@ -68,7 +68,8 @@ steps: |
      For multi-screen flows, call get_creation_guide(topic:"multi-screen") for architecture rules.
      For complex layouts, call get_creation_guide(topic:"layout") for structural rules.
      For icons: use icon_search(query) to find icons, then icon_create to place them.
-     For images: use image_search(query) to find stock photos, then set_image_fill to apply.
+     For remote/stock images: use image_search(query), then create_frame with imageUrl.
+     For local images: use create_image_frame_from_local for new frames, or fill_existing_image_from_local when editing an existing node.
      After creation, verify with export_image and run lint_fix_all.
 
   ## Check

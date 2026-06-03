@@ -4,7 +4,7 @@ This document is generated from `schema/tools.yaml`, `packages/core-mcp/src/tool
 
 ## Tool Response Coverage
 
-Covered flat/custom tools: 111
+Covered flat/custom tools: 113
 
 ### `add_collection_mode`
 
@@ -292,6 +292,10 @@ Covered flat/custom tools: 111
   "visible": true
 }
 ```
+
+### `create_image_frame_from_local`
+
+- Example payloads: 0
 
 ### `create_instance`
 
@@ -619,6 +623,10 @@ Covered flat/custom tools: 111
   "message": "Figma credentials cleared."
 }
 ```
+
+### `fill_existing_image_from_local`
+
+- Example payloads: 0
 
 ### `flatten_node`
 
