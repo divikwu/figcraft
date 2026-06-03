@@ -31,6 +31,7 @@ Forms the "create → review → fix" quality loop: `figma-create-ui` → `desig
 | Skill | Description |
 |-------|-------------|
 | **responsive-design** | Responsive web design — breakpoints, auto-layout strategy, sizing patterns. |
+| **figcraft-html-import** | Import static HTML/web pages into editable Figma layers through the native `import_html` converter. |
 | **content-states** | Empty, loading, and error state design patterns for data-driven views. |
 | **iconography** | Icon ordering in auto-layout, tool chain, sizing, spacing, style consistency. |
 | **multi-screen-flow** | Multi-screen flow architecture — wrapper hierarchy, stage containers, step pills, build order. |

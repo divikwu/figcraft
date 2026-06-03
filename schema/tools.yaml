@@ -1826,6 +1826,84 @@ fill_existing_image_from_local:
       source:
         type: object
 
+# ─── HTML Import (core) ───
+
+import_html:
+  # harness: delegates=[create_frame]
+  description: >-
+    Convert static HTML into editable Figma layers through FigCraft create_frame.
+    Supports raw inline HTML, absolute local .html files, and simple http(s) URLs.
+    The native converter maps semantic HTML, inline styles, images, inputs, buttons,
+    and basic flex/block structure into a declarative children tree. It is intentionally
+    conservative and does not execute JavaScript or fully evaluate external CSS. For
+    pixel-perfect live web capture, pair this with the official Figma MCP
+    generate_figma_design workflow when available.
+  toolset: core
+  write: true
+  access: create
+  handler: custom
+  timeoutMs: 60000
+  params:
+    html:
+      type: string
+      description: "Raw HTML string. Provide exactly one of html, filePath, or url."
+    filePath:
+      type: string
+      description: "Absolute path to a local .html/.htm/.xhtml file. Defaults to files under cwd; set FIGCRAFT_HTML_IMPORT_ROOTS for more roots, or '*' to allow all."
+    url:
+      type: string
+      description: "Public http(s) URL to fetch static HTML from. JavaScript is not executed. Private/loopback URLs are blocked unless FIGCRAFT_HTML_IMPORT_ALLOW_PRIVATE_URLS=true."
+    baseUrl:
+      type: string
+      description: "Base URL for resolving relative image/link URLs. Defaults to url when provided."
+    parentId:
+      type: string
+      description: "Optional parent node ID. Defaults to current page."
+    name:
+      type: string
+      description: "Root frame name. Defaults to the HTML title or source filename."
+    x:
+      type: number
+      description: "Root frame X position"
+    y:
+      type: number
+      description: "Root frame Y position"
+    width:
+      type: number
+      description: "Root frame width in px. Default 1440."
+    height:
+      type: number
+      description: "Optional root frame fixed height in px."
+    maxDepth:
+      type: number
+      description: "Maximum HTML tree depth to convert. Default 8."
+    maxNodes:
+      type: number
+      description: "Maximum generated child nodes. Default 250."
+    dryRun:
+      type: boolean
+      description: "Return the generated create_frame payload without writing to Figma."
+  response:
+    type: object
+    fields:
+      id:
+        type: string
+        description: "Created root frame ID when dryRun is false"
+      name:
+        type: string
+      payload:
+        type: object
+        description: "Generated create_frame payload"
+      source:
+        type: object
+        description: "HTML source metadata"
+      stats:
+        type: object
+        description: "Conversion stats such as nodeCount"
+      warnings:
+        type: array
+        description: "Non-fatal conversion warnings"
+
 # ─── SVG Creation (core) ───
 
 create_svg:

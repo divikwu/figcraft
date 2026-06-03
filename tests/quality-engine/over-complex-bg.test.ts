@@ -10,8 +10,6 @@
  */
 import { describe, expect, it } from 'vitest';
 import { runLint } from '../../packages/quality-engine/src/engine.js';
-import { wcagContrastRule } from '../../packages/quality-engine/src/rules/wcag/wcag-contrast.js';
-import { wcagNonTextContrastRule } from '../../packages/quality-engine/src/rules/wcag/wcag-non-text-contrast.js';
 import type { AbstractNode, LintContext } from '../../packages/quality-engine/src/types.js';
 
 const emptyCtx: LintContext = {

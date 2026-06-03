@@ -22,7 +22,7 @@ import { inputFieldStructureRule } from '../../packages/quality-engine/src/rules
 // ─── WCAG (untested) ───
 import { wcagLineHeightRule } from '../../packages/quality-engine/src/rules/wcag/wcag-line-height.js';
 import { wcagTextSizeRule } from '../../packages/quality-engine/src/rules/wcag/wcag-text-size.js';
-import type { AbstractNode, FixDescriptor, LintContext } from '../../packages/quality-engine/src/types.js';
+import type { AbstractNode, LintContext } from '../../packages/quality-engine/src/types.js';
 
 const emptyCtx: LintContext = {
   colorTokens: new Map(),

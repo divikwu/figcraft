@@ -48,7 +48,7 @@ function _isHugOnAxis(node: AbstractNode, axis: 'horizontal' | 'vertical'): bool
 function hasStretchChild(node: AbstractNode): boolean {
   if (!node.children) return false;
   return node.children.some((child) => {
-    const la = (child as any).layoutAlign;
+    const la = child.layoutAlign;
     return la === 'STRETCH';
   });
 }

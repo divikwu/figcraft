@@ -164,7 +164,7 @@ MCP tools are split into core (always loaded) and optional toolsets (on-demand v
 - Content assets: `content/` YAML/Markdown → `npm run content` generates TypeScript (see `docs/asset-maintenance.md`)
 
 <!-- @inject-start: ide-shared/toolsets.md -->
-Core tools (41) are always enabled — including `create_component`, `create_component_set`, `update_component`, `create_component_from_node`, `layout_component_set`, `create_section`, `get_design_context`, `variables_ep`, and `styles_ep`. Load additional toolsets as needed via `load_toolset`:
+Core tools (44) are always enabled — including `create_component`, `create_component_set`, `update_component`, `create_component_from_node`, `layout_component_set`, `create_section`, `get_design_context`, `import_html`, `variables_ep`, and `styles_ep`. Load additional toolsets as needed via `load_toolset`:
 
 | Toolset | When to load |
 |---------|-------------|

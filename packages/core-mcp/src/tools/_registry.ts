@@ -7,7 +7,7 @@
  * Re-generate: npm run schema
  */
 
-/** Core tools: always enabled (~43) */
+/** Core tools: always enabled (~44) */
 export const GENERATED_CORE_TOOLS = new Set([
   'ping',
   'get_mode',
@@ -36,6 +36,7 @@ export const GENERATED_CORE_TOOLS = new Set([
   'image_preview',
   'create_image_frame_from_local',
   'fill_existing_image_from_local',
+  'import_html',
   'create_svg',
   'text_scan',
   'search_design_system',
@@ -146,6 +147,7 @@ export const GENERATED_CUSTOM_TOOLS = new Set([
   'image_preview',
   'create_image_frame_from_local',
   'fill_existing_image_from_local',
+  'import_html',
   'search_design_system',
   'list_tokens',
   'sync_tokens',
@@ -184,6 +186,7 @@ export const GENERATED_WRITE_TOOLS = new Set([
   'icon_create',
   'create_image_frame_from_local',
   'fill_existing_image_from_local',
+  'import_html',
   'create_svg',
   'set_explicit_variable_mode',
   'rename_collection',
@@ -251,6 +254,7 @@ export const GENERATED_CREATE_TOOLS = new Set([
   'create_text',
   'icon_create',
   'create_image_frame_from_local',
+  'import_html',
   'create_svg',
   'add_collection_mode',
   'sync_tokens',

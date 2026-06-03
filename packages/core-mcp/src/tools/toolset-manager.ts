@@ -39,6 +39,7 @@ import { registerEndpointTools } from './endpoints.js';
 import { registerExecuteJsTools } from './execute-js.js';
 import { registerExportTools } from './export.js';
 import { registerHelpTool } from './help.js';
+import { registerHtmlImportTools } from './html-import.js';
 import { registerIconTools } from './iconify.js';
 import { registerLibraryStyleTools } from './library-styles.js';
 import { registerLintTools } from './lint.js';
@@ -259,6 +260,7 @@ export function registerAllTools(server: McpServer, bridge: Bridge): void {
   // Register image tools (Pexels integration)
   registerPexelsTools(server);
   registerLocalImageTools(server, bridge);
+  registerHtmlImportTools(server, bridge);
 
   // Register design system search
   registerSearchDesignSystemTool(server, bridge);

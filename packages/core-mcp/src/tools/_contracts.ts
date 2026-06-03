@@ -266,6 +266,14 @@ export const GENERATED_TOOL_RESPONSE_SCHEMAS: Record<string, z.ZodTypeAny> = {
       imageHash: z.string().optional(),
       source: z.record(z.unknown()).optional(),
     }),
+  'import_html': z.object({
+      id: z.string().optional().describe("Created root frame ID when dryRun is false"),
+      name: z.string().optional(),
+      payload: z.record(z.unknown()).optional().describe("Generated create_frame payload"),
+      source: z.record(z.unknown()).optional().describe("HTML source metadata"),
+      stats: z.record(z.unknown()).optional().describe("Conversion stats such as nodeCount"),
+      warnings: z.array(z.unknown()).optional().describe("Non-fatal conversion warnings"),
+    }),
   'create_svg': z.object({
       id: z.string(),
       name: z.string().optional(),
@@ -1292,6 +1300,7 @@ export const GENERATED_TOOL_RESPONSE_EXAMPLES: Record<string, unknown[]> = {
   'image_preview': [],
   'create_image_frame_from_local': [],
   'fill_existing_image_from_local': [],
+  'import_html': [],
   'create_svg': [],
   'text_scan': [],
   'search_design_system': [],

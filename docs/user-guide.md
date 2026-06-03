@@ -179,13 +179,13 @@ cwd = "/your/absolute/path/to/figcraft"
 
 ### 3.2 工具体系
 
-**39 个核心工具**（始终可用）：
+**44 个核心工具**（始终可用）：
 
 | 类别 | 工具 |
 |---|---|
 | 连接 & 模式 | `ping`, `get_mode`, `set_mode`, `join_channel`, `get_channel` |
 | 读取 | `get_current_page`, `get_document_info`, `get_selection`, `list_fonts` |
-| 创建 | `create_frame`, `create_text`, `create_svg` |
+| 创建 | `create_frame`, `create_text`, `create_svg`, `import_html` |
 | 质量 | `lint_fix_all`, `verify_design`, `audit_node`, `get_design_guidelines`, `get_creation_guide` |
 | 导出 | `export_image`, `save_version_history` |
 | 图标 & 图片 | `icon_search`, `icon_create`, `icon_collections`, `image_search`, `image_preview`, `create_image_frame_from_local`, `fill_existing_image_from_local` |
@@ -511,12 +511,12 @@ AI 调用 `get_mode` 时根据库状态自动选择 guardian 或 creator，funda
 | IDE | 配置文件 | 字段 | 工具名格式 |
 |---|---|---|---|
 | **Claude Code** | `.claude/settings.json`（项目级，已 commit） | `permissions.allow` | `mcp__figcraft__<tool>` |
-| **Kiro** | `.kiro/settings/mcp.json`（项目级，已 commit） | `mcpServers.figcraft.autoApprove` | 裸工具名（如 `create_frame`） |
+| **Kiro** | `.kiro/settings/mcp.json.example`（已 commit，复制为本地 `.kiro/settings/mcp.json`） | `mcpServers.figcraft.autoApprove` | 裸工具名（如 `create_frame`） |
 | **Cursor** | `~/.cursor/permissions.json`（**用户级**，不能 commit） | `mcpAllowlist` | `figcraft:<tool>` 或 `figcraft:*` |
 
 > ⚠️ **常见误解**：`.mcp.json`（Claude Code 用）里写 `autoApprove` 字段会被**完全忽略**——这是 Cursor/Kiro 的扩展字段，不是 MCP 标准。Claude Code 唯一的入口是 `.claude/settings.json` → `permissions.allow`。
 
-**已预设的列表**（fork 仓库即可获得）：所有 119 个 figcraft MCP 工具均已加入 `.claude/settings.json` 和 `.kiro/settings/mcp.json`。Cursor 用户需要自己在用户目录创建 `~/.cursor/permissions.json`：
+**已预设的列表**（fork 仓库即可获得）：所有 122 个 figcraft 批准项（119 个 schema 工具 + 3 个 toolset 管理工具）均已加入 `.claude/settings.json` 和 `.kiro/settings/mcp.json.example`。Kiro 用户复制 example 到 `.kiro/settings/mcp.json`，Cursor 用户需要自己在用户目录创建 `~/.cursor/permissions.json`：
 
 ```json
 {
@@ -535,7 +535,7 @@ AI 调用 `get_mode` 时根据库状态自动选择 guardian 或 creator，funda
 
 > ⚠️ Endpoint 工具（`nodes` / `text` / `components` / `variables_ep` / `styles_ep`）一旦自动批准，其内部所有 method（含 `delete`、`update`）都会被隐含放行——IDE 看不到 method dispatch。
 
-**保持同步**：修改 `schema/tools.yaml` 后，运行 `npm run schema` 会自动重新生成 `_registry.ts` 并把最新工具列表 sync 到 `.claude/settings.json` 和 `.kiro/settings/mcp.json`（脚本：`scripts/sync-auto-approve.mjs`）。
+**保持同步**：修改 `schema/tools.yaml` 后，运行 `npm run schema` 会自动重新生成 `_registry.ts` 并把最新工具列表 sync 到 `.claude/settings.json`、`.kiro/settings/mcp.json.example`，以及本地存在的 `.kiro/settings/mcp.json`（脚本：`scripts/sync-auto-approve.mjs`）。
 
 ---
 

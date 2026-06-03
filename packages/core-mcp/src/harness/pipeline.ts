@@ -14,7 +14,7 @@
  */
 
 import type { DesignSession } from '../design-session.js';
-import type { HarnessAction, HarnessContext, HarnessPhase, HarnessRequestMeta, HarnessRule } from './types.js';
+import type { HarnessContext, HarnessPhase, HarnessRequestMeta, HarnessRule } from './types.js';
 
 export class HarnessPipeline {
   private readonly rules: HarnessRule[] = [];

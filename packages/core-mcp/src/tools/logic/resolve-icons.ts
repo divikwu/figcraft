@@ -11,16 +11,6 @@
 
 import { fetchIconSvg } from '../iconify.js';
 
-interface IconChild {
-  type: 'icon';
-  icon: string;
-  size?: number;
-  fill?: string;
-  colorVariableName?: string;
-  name?: string;
-  [key: string]: unknown;
-}
-
 export interface IconWarning {
   icon: string;
   error: string;

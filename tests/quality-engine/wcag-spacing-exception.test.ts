@@ -6,7 +6,6 @@
  *   `Forgot Link` FRAME (354×20, VERTICAL parent, itemSpacing 8) should pass.
  */
 import { describe, expect, it } from 'vitest';
-import { classifyInteractive } from '../../packages/quality-engine/src/interactive/classifier.js';
 import { buttonIconStructureRule } from '../../packages/quality-engine/src/rules/structure/button-icon-structure.js';
 import { buttonTextStructureRule } from '../../packages/quality-engine/src/rules/structure/button-text-structure.js';
 import { linkStandaloneStructureRule } from '../../packages/quality-engine/src/rules/structure/link-standalone-structure.js';

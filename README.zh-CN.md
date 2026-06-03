@@ -94,7 +94,7 @@ Figma 提供两种部署方式：
 
 各 IDE 的配置文件路径不同，展开查看：
 
-> 📦 **如果你 fork 了本仓库直接使用**，三份项目级配置已经预先 commit：`.cursor/mcp.json`、`.mcp.json`、`.kiro/settings/mcp.json`，外加 `.claude/settings.json`（Claude Code 的自动批准入口）。**每个 IDE 的自动批准机制不同，不能跨 IDE 复用同一字段** —— 详见下方分 IDE 说明，或参考 [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) 的完整对照表。
+> 📦 **如果你 fork 了本仓库直接使用**，共享的项目级配置已经预先 commit：`.cursor/mcp.json`、`.mcp.json`、`.kiro/settings/mcp.json.example`，外加 `.claude/settings.json`（Claude Code 的自动批准入口）。Kiro 本地使用时，把 example 复制为 `.kiro/settings/mcp.json`。**每个 IDE 的自动批准机制不同，不能跨 IDE 复用同一字段** —— 详见下方分 IDE 说明，或参考 [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) 的完整对照表。
 
 <details>
 <summary><strong>Cursor</strong> — <code>.cursor/mcp.json</code></summary>
@@ -125,13 +125,13 @@ Figma 提供两种部署方式：
 }
 ```
 
-本仓库预 commit 的 `.claude/settings.json` 已列出全部 119 个 figcraft 工具 + 13 个 figma-desktop 工具。修改 `schema/tools.yaml` 后运行 `npm run schema` 会自动同步。
+本仓库预 commit 的 `.claude/settings.json` 已列出全部 122 个 figcraft 批准项（119 个 schema 工具 + 3 个 toolset 管理工具）+ 13 个 figma-desktop 工具。修改 `schema/tools.yaml` 后运行 `npm run schema` 会自动同步。
 </details>
 
 <details>
 <summary><strong>Kiro</strong> — <code>.kiro/settings/mcp.json</code></summary>
 
-在项目根目录创建 `.kiro/settings/mcp.json`。Kiro 原生支持 `autoApprove`：
+把 `.kiro/settings/mcp.json.example` 复制为项目根目录下的 `.kiro/settings/mcp.json`。Kiro 原生支持 `autoApprove`：
 
 ```json
 {
@@ -147,7 +147,7 @@ Figma 提供两种部署方式：
 }
 ```
 
-本仓库预 commit 的 `.kiro/settings/mcp.json` 已自动批准全部 119 个 figcraft 工具。Kiro 中工具名以 `mcp_figcraft_` 为前缀（如 `mcp_figcraft_ping`、`mcp_figcraft_lint_fix_all`）。
+本仓库预 commit 的 `.kiro/settings/mcp.json.example` 已自动批准全部 122 个 figcraft 批准项（119 个 schema 工具 + 3 个 toolset 管理工具）。Kiro 中工具名以 `mcp_figcraft_` 为前缀（如 `mcp_figcraft_ping`、`mcp_figcraft_lint_fix_all`）。
 
 > **提示**：本仓库包含 `.kiro/steering/figcraft.md` 工作流指南，可复制到你的项目 `.kiro/steering/` 目录中使用。
 </details>
@@ -208,6 +208,7 @@ FigCraft 直接在 Figma 中创建 UI — Frame、文本、SVG、组件、变体
 - `create_frame` 搭配 `children` 一次调用构建完整页面层级
 - `create_component` / `create_component_set` 构建可复用组件库，内置变体数量守卫
 - `create_image_frame_from_local` 将本地 PNG/JPEG/GIF 导入为图片 Frame；`fill_existing_image_from_local` 可在 edit 权限下替换已有图片填充
+- `import_html` 将静态 HTML、本地 `.html` 文件或简单 URL 转换为可编辑的 FigCraft Frame / 文本 / 图片图层
 - 创建后 Harness Pipeline 自动验证质量；也可手动运行 `lint_fix_all`
 - `get_design_context` 提取节点树 + 已解析的 Token 元数据，用于 design-to-code 工作流
 

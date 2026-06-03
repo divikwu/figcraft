@@ -54,7 +54,7 @@ export const formConsistencyRule: LintRule = {
       (c) =>
         c.layoutMode !== undefined || // has layout properties
         c.width === node.width || // fills parent width
-        (c as any).layoutAlign === 'STRETCH',
+        c.layoutAlign === 'STRETCH',
     );
 
     // Check for mixed widths among interactive children

@@ -31,6 +31,15 @@ interface PexelsSearchResponse {
   per_page: number;
 }
 
+interface PexelsErrorResponse {
+  error: string;
+}
+
+interface PexelsPreviewResponse {
+  [x: string]: unknown;
+  content: Array<{ type: 'image'; data: string; mimeType: string } | { type: 'text'; text: string }>;
+}
+
 async function searchPhotos(params: {
   query: string;
   orientation?: string;
@@ -74,7 +83,7 @@ async function searchPhotos(params: {
   };
 }
 
-async function previewPhoto(id: number, size?: string): Promise<unknown> {
+async function previewPhoto(id: number, size?: string): Promise<PexelsPreviewResponse | PexelsErrorResponse> {
   const key = getApiKey();
   if (!key) {
     return { error: 'PEXELS_API_KEY not set.' };
@@ -142,9 +151,9 @@ export function registerPexelsTools(server: McpServer): void {
       size: z.enum(['small', 'medium', 'large']).optional().describe('Preview size (default: medium)'),
     },
     async ({ id, size }) => {
-      const result = (await previewPhoto(id, size)) as any;
+      const result = await previewPhoto(id, size);
       // If result has content array (image + text), return directly
-      if (result.content) return result;
+      if ('content' in result) return result;
       // Otherwise it's an error
       return jsonResponse(result);
     },

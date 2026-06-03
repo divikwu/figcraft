@@ -2308,8 +2308,11 @@ async function createSingleFrame(params: Record<string, unknown>, skipLint = fal
           }
           const mapped = PRE_RULE_TO_LINT_RULE[inf.field];
           if (mapped) {
-            if (Array.isArray(mapped)) mapped.forEach((r) => skipRules.add(r));
-            else skipRules.add(mapped);
+            if (Array.isArray(mapped)) {
+              for (const rule of mapped) skipRules.add(rule);
+            } else {
+              skipRules.add(mapped);
+            }
           }
         }
         const lintSummary = await quickLintSummary(frame.id, true, skipRules.size > 0 ? skipRules : undefined);
@@ -2464,8 +2467,11 @@ export function registerCreateHandlers(): void {
             else if (inf.field === 'layoutMode') batchSkipRules.add('no-autolayout');
             const mapped = PRE_RULE_TO_LINT_RULE[inf.field];
             if (mapped) {
-              if (Array.isArray(mapped)) mapped.forEach((r) => batchSkipRules.add(r));
-              else batchSkipRules.add(mapped);
+              if (Array.isArray(mapped)) {
+                for (const rule of mapped) batchSkipRules.add(rule);
+              } else {
+                batchSkipRules.add(mapped);
+              }
             }
           }
           const summaries = await Promise.all(

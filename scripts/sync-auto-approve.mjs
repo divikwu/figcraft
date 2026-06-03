@@ -6,7 +6,8 @@
  *   - Claude Code: `.claude/settings.json` → permissions.allow with `mcp__figcraft__<tool>` format.
  *     Claude Code does NOT honor `autoApprove` inside `.mcp.json` — that field is silently
  *     ignored. Auto-approval is only configurable through `.claude/settings.json`.
- *   - Kiro: `.kiro/settings/mcp.json` → mcpServers.figcraft.autoApprove with plain tool names.
+ *   - Kiro: `.kiro/settings/mcp.json` or the committed `.kiro/settings/mcp.json.example`
+ *     template → mcpServers.figcraft.autoApprove with plain tool names.
  *   - Cursor: `.cursor/mcp.json` does not have an autoApprove field — Cursor's approval flow
  *     prompts per tool. Left untouched.
  *
@@ -30,6 +31,7 @@ const root = resolve(__dirname, '..');
 const registryPath = resolve(root, 'packages/core-mcp/src/tools/_registry.ts');
 const claudeSettingsPath = resolve(root, '.claude/settings.json');
 const kiroConfigPath = resolve(root, '.kiro/settings/mcp.json');
+const kiroTemplatePath = resolve(root, '.kiro/settings/mcp.json.example');
 const mcpConfigPath = resolve(root, '.mcp.json');
 
 const SERVER_NAME = 'figcraft';
@@ -73,6 +75,27 @@ console.log(`📦 Discovered ${sortedTools.length} MCP tools from _registry.ts`)
 
 let touched = 0;
 
+function syncKiroAutoApprove(configPath, label) {
+  if (!existsSync(configPath)) return false;
+  const raw = readFileSync(configPath, 'utf8');
+  const config = JSON.parse(raw);
+  const server = config.mcpServers?.[SERVER_NAME];
+  if (!server) {
+    console.error(`❌ ${SERVER_NAME} server not found in ${label}`);
+    process.exit(1);
+  }
+  server.autoApprove = sortedTools;
+  const next = `${JSON.stringify(config, null, 2)}\n`;
+  if (next !== raw) {
+    writeFileSync(configPath, next);
+    console.log(`✅ ${label}: ${sortedTools.length} autoApprove entries`);
+    touched++;
+  } else {
+    console.log(`✓  ${label}: already in sync`);
+  }
+  return true;
+}
+
 // ── 1. Claude Code: .claude/settings.json → permissions.allow with mcp__figcraft__ prefix ──
 if (existsSync(claudeSettingsPath)) {
   const raw = readFileSync(claudeSettingsPath, 'utf8');
@@ -94,26 +117,11 @@ if (existsSync(claudeSettingsPath)) {
   console.log('⏭️  .claude/settings.json not found — skipping');
 }
 
-// ── 2. Kiro: .kiro/settings/mcp.json → mcpServers.figcraft.autoApprove ──
-if (existsSync(kiroConfigPath)) {
-  const raw = readFileSync(kiroConfigPath, 'utf8');
-  const config = JSON.parse(raw);
-  const server = config.mcpServers?.[SERVER_NAME];
-  if (!server) {
-    console.error(`❌ ${SERVER_NAME} server not found in .kiro/settings/mcp.json`);
-    process.exit(1);
-  }
-  server.autoApprove = sortedTools;
-  const next = `${JSON.stringify(config, null, 2)}\n`;
-  if (next !== raw) {
-    writeFileSync(kiroConfigPath, next);
-    console.log(`✅ .kiro/settings/mcp.json: ${sortedTools.length} autoApprove entries`);
-    touched++;
-  } else {
-    console.log('✓  .kiro/settings/mcp.json: already in sync');
-  }
-} else {
-  console.log('⏭️  .kiro/settings/mcp.json not found — skipping');
+// ── 2. Kiro: local config plus committed template → mcpServers.figcraft.autoApprove ──
+const foundKiroConfig = syncKiroAutoApprove(kiroConfigPath, '.kiro/settings/mcp.json');
+const foundKiroTemplate = syncKiroAutoApprove(kiroTemplatePath, '.kiro/settings/mcp.json.example');
+if (!foundKiroConfig && !foundKiroTemplate) {
+  console.log('⏭️  no Kiro config/template found — skipping');
 }
 
 // ── 3. .mcp.json: strip dead autoApprove on figcraft (Claude Code ignores it) ──

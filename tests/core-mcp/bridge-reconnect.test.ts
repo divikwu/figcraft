@@ -10,9 +10,11 @@
 import * as fc from 'fast-check';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+type MockEventHandler = (...args: unknown[]) => void;
+
 // Store event handlers registered by each WebSocket instance
 let wsInstances: Array<{
-  handlers: Record<string, Function>;
+  handlers: Record<string, MockEventHandler>;
   send: ReturnType<typeof vi.fn>;
   close: ReturnType<typeof vi.fn>;
   terminate: ReturnType<typeof vi.fn>;
@@ -23,14 +25,14 @@ let wsInstances: Array<{
 // Mock the 'ws' module so Bridge constructor doesn't open real sockets
 vi.mock('ws', () => {
   class MockWebSocket {
-    handlers: Record<string, Function> = {};
+    handlers: Record<string, MockEventHandler> = {};
     send = vi.fn();
     close = vi.fn();
     terminate = vi.fn();
     removeAllListeners = vi.fn();
     readyState = 1;
 
-    on = vi.fn((event: string, handler: Function) => {
+    on = vi.fn((event: string, handler: MockEventHandler) => {
       this.handlers[event] = handler;
     });
 

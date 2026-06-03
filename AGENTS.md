@@ -104,12 +104,12 @@ Resource-oriented endpoints with method dispatch:
 Call syntax: `nodes({ method: "get", nodeId: "1:23" })`, `variables_ep({ method: "list_collections" })`, `styles_ep({ method: "list" })`
 <!-- @inject-end -->
 
-Standalone tools (not grouped into endpoints): `ping`, `get_mode`, `set_mode`, `join_channel`, `get_channel`, `export_image`, `lint_fix_all`, `set_current_page`, `save_version_history`, `set_selection`, `get_selection`, `get_current_page`, `get_document_info`, `list_fonts`, `audit_node`, `get_design_guidelines`
+Standalone tools (not grouped into endpoints): `ping`, `get_mode`, `set_mode`, `join_channel`, `get_channel`, `export_image`, `lint_fix_all`, `set_current_page`, `save_version_history`, `set_selection`, `get_selection`, `get_current_page`, `get_document_info`, `list_fonts`, `audit_node`, `get_design_guidelines`, `import_html`
 
 ## Dynamic Toolsets
 
 <!-- @inject-start: ide-shared/toolsets.md -->
-Core tools (41) are always enabled — including `create_component`, `create_component_set`, `update_component`, `create_component_from_node`, `layout_component_set`, `create_section`, `get_design_context`, `variables_ep`, and `styles_ep`. Load additional toolsets as needed via `load_toolset`:
+Core tools (44) are always enabled — including `create_component`, `create_component_set`, `update_component`, `create_component_from_node`, `layout_component_set`, `create_section`, `get_design_context`, `import_html`, `variables_ep`, and `styles_ep`. Load additional toolsets as needed via `load_toolset`:
 
 | Toolset | When to load |
 |---------|-------------|

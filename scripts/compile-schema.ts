@@ -37,7 +37,7 @@ interface ToolDef {
   access?: 'create' | 'edit';
   handler: 'bridge' | 'custom';
   bridgeMethod?: string; // override bridge method name
-  params: Record<string, ParamDef> | {};
+  params: Record<string, ParamDef>;
   response?: ParamDef;
   examples?: unknown[];
   response_guard?: boolean;

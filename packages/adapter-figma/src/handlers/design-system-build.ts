@@ -686,7 +686,7 @@ export function registerDesignSystemBuildHandlers(): void {
       for (const item of items) {
         if (!item || typeof item.nodeId !== 'string' || !Array.isArray(item.bindings)) {
           outItems.push({
-            nodeId: (item && item.nodeId) || '',
+            nodeId: item?.nodeId || '',
             ok: false,
             error: 'Invalid item: requires {nodeId: string, bindings: BindingSpec[]}',
           });

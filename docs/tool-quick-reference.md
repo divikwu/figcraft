@@ -4,10 +4,10 @@
 
 ## 工具总览
 
-FigCraft 在 `schema/tools.yaml` 中定义了 116 个工具，加上 3 个元工具（`load_toolset` / `unload_toolset` / `list_toolsets`）和 5 个资源端点（含 42 个方法），共计约 **161 个可调用入口**。
+FigCraft 在 `schema/tools.yaml` 中定义工具，并通过生成 registry 暴露核心工具、可选工具集和资源端点。
 
-- 39 个核心工具 + 3 个元工具：始终可用
-- 77 个扩展工具：分布在 13 个可选工具集中，按需加载
+- 44 个核心工具 + 3 个元工具：始终可用
+- 75 个扩展工具：分布在 13 个可选工具集中，按需加载
 - 5 个资源端点：`nodes`、`text`、`components`、`variables_ep`、`styles_ep`
 
 ---
@@ -40,6 +40,7 @@ FigCraft 在 `schema/tools.yaml` 中定义了 116 个工具，加上 3 个元工
 | `create_frame` | 创建 Frame（支持 auto-layout、GRID 布局、children 嵌套、Opinion Engine 推断、dryRun 预览） |
 | `create_text` | 创建文本节点（支持 Token 绑定、文字样式） |
 | `create_svg` | 从 SVG 标记创建矢量节点 |
+| `import_html` | 将静态 HTML、本地 `.html` 文件或简单 URL 转换为可编辑图层 |
 | `create_component` | 从 Frame 创建组件（支持 properties 声明、Opinion Engine） |
 | `create_component_set` | 将多个组件合并为变体集（30 变体上限守卫） |
 | `create_component_from_node` | 将现有节点转为组件 |

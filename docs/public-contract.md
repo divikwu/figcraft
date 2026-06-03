@@ -52,7 +52,7 @@ This document captures the externally visible behavior that must remain stable a
 ## Skills Directory
 
 - Skills live at `skills/` (project root), shared across IDEs via symlinks
-- Structure: flat — all 29 skills as direct children of `skills/` (design rules, declarative creation, plugin API, platform, auxiliary)
+- Structure: flat — all 30 skills as direct children of `skills/` (design rules, declarative creation, plugin API, platform, auxiliary)
 - IDE symlinks: `.claude/skills` → `../skills`, `.kiro/skills` → `../skills`
 - Design rules source of truth: `skills/ui-ux-fundamentals/SKILL.md`, `skills/design-guardian/SKILL.md`, `skills/design-creator/SKILL.md`
 

@@ -4,7 +4,7 @@ Skills 是 FigCraft 的核心资产——MCP 工具之上的**知识层**。工�
 
 ## 当前资产
 
-### 29 个 Skills
+### 30 个 Skills
 
 | 分类 | Skill | 覆盖能力 |
 |------|-------|---------|
@@ -26,6 +26,7 @@ Skills 是 FigCraft 的核心资产——MCP 工具之上的**知识层**。工�
 | 质量保障 | spec-compare | DTCG 与 Figma 变量对比 |
 | 质量保障 | token-sync | DTCG Token 同步到 Figma |
 | 设计模式 | responsive-design | 响应式 Web 设计（断点、自适应布局） |
+| 设计模式 | figcraft-html-import | HTML / Web 页面导入为可编辑 Figma 图层 |
 | 设计模式 | content-states | 空状态/加载/错误状态设计模式 |
 | 设计模式 | iconography | 图标排序、工具链、尺寸、样式一致性 |
 | 设计模式 | design-handoff | 设计交付（标注、规范导出） |

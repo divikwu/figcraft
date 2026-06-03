@@ -4,7 +4,7 @@ This document is generated from `schema/tools.yaml`, `packages/core-mcp/src/tool
 
 ## Tool Response Coverage
 
-Covered flat/custom tools: 113
+Covered flat/custom tools: 114
 
 ### `add_collection_mode`
 
@@ -1055,6 +1055,10 @@ Covered flat/custom tools: 113
 - Example payloads: 0
 
 ### `image_search`
+
+- Example payloads: 0
+
+### `import_html`
 
 - Example payloads: 0
 

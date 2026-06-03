@@ -94,7 +94,7 @@ For full details, see the [official Figma MCP documentation](https://developers.
 
 Put it in the right file for your IDE:
 
-> 📦 **If you cloned this repo for fork-and-use**, the three project-level configs are already committed: `.cursor/mcp.json`, `.mcp.json`, `.kiro/settings/mcp.json` — plus `.claude/settings.json` for Claude Code's auto-approval. Each IDE has a different auto-approval mechanism — see the per-IDE notes below or [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) for the full table.
+> 📦 **If you cloned this repo for fork-and-use**, the shared project configs are already committed: `.cursor/mcp.json`, `.mcp.json`, `.kiro/settings/mcp.json.example` — plus `.claude/settings.json` for Claude Code's auto-approval. Copy the Kiro example to `.kiro/settings/mcp.json` for local Kiro use. Each IDE has a different auto-approval mechanism — see the per-IDE notes below or [user-guide §6.5](docs/user-guide.md#65-自动批准auto-approve配置) for the full table.
 
 <details>
 <summary><strong>Cursor</strong> — <code>.cursor/mcp.json</code></summary>
@@ -125,13 +125,13 @@ Create `.mcp.json` in your project root with the config above.
 }
 ```
 
-This repo's pre-committed `.claude/settings.json` already lists all 119 figcraft tools + 13 figma-desktop tools. Run `npm run schema` to regenerate after upstream tool changes.
+This repo's pre-committed `.claude/settings.json` already lists all 122 figcraft approval entries (119 schema tools + 3 toolset meta tools) + 13 figma-desktop tools. Run `npm run schema` to regenerate after upstream tool changes.
 </details>
 
 <details>
 <summary><strong>Kiro</strong> — <code>.kiro/settings/mcp.json</code></summary>
 
-Create `.kiro/settings/mcp.json` in your project root. Kiro supports `autoApprove` natively:
+Copy `.kiro/settings/mcp.json.example` to `.kiro/settings/mcp.json` in your project root. Kiro supports `autoApprove` natively:
 
 ```json
 {
@@ -147,7 +147,7 @@ Create `.kiro/settings/mcp.json` in your project root. Kiro supports `autoApprov
 }
 ```
 
-This repo's pre-committed `.kiro/settings/mcp.json` already auto-approves all 119 figcraft tools. Tools are surfaced in Kiro as `mcp_figcraft_<tool>` (e.g. `mcp_figcraft_ping`).
+This repo's pre-committed `.kiro/settings/mcp.json.example` already auto-approves all 122 figcraft approval entries (119 schema tools + 3 toolset meta tools). Tools are surfaced in Kiro as `mcp_figcraft_<tool>` (e.g. `mcp_figcraft_ping`).
 
 > **Tip**: This repo includes `.kiro/steering/figcraft.md` as a workflow guide. Copy it to your project's `.kiro/steering/` folder.
 </details>
@@ -210,6 +210,7 @@ FigCraft creates UI directly in Figma — frames, text, SVG, components, variant
 - `create_frame` with inline `children` builds entire screen hierarchies in one call
 - `create_component` / `create_component_set` build reusable component libraries with variant guardrails
 - `create_image_frame_from_local` imports local PNG/JPEG/GIF files as image-filled frames; `fill_existing_image_from_local` replaces existing fills with edit access
+- `import_html` converts static HTML, local `.html` files, or simple URLs into editable FigCraft frame/text/image layers
 - After creating UI, the Harness Pipeline auto-verifies quality; or run `lint_fix_all` manually
 - Use `get_design_context` to extract node trees with resolved tokens for design-to-code workflows
 
