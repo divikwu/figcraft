@@ -67,6 +67,15 @@ function isOverBudget(ctx: SimplifyContext): boolean {
   return false;
 }
 
+function getStyleMeta(styleId: string): { key?: string; remote?: boolean } {
+  try {
+    const style = figma.getStyleById(styleId);
+    return { key: style?.key, remote: style?.remote };
+  } catch {
+    return {};
+  }
+}
+
 /** Simplify a Figma node tree into compressed JSON. */
 export function simplifyNode(
   node: SceneNode,
@@ -267,19 +276,39 @@ export function simplifyNode(
     // Style IDs
     if ('fillStyleId' in node) {
       const fid = (node as GeometryMixin).fillStyleId;
-      if (typeof fid === 'string' && fid) base.fillStyleId = fid;
+      if (typeof fid === 'string' && fid) {
+        const meta = getStyleMeta(fid);
+        base.fillStyleId = fid;
+        base.fillStyleKey = meta.key;
+        base.fillStyleRemote = meta.remote;
+      }
     }
     if ('strokeStyleId' in node) {
       const sid = (node as GeometryMixin).strokeStyleId;
-      if (typeof sid === 'string' && sid) base.strokeStyleId = sid;
+      if (typeof sid === 'string' && sid) {
+        const meta = getStyleMeta(sid);
+        base.strokeStyleId = sid;
+        base.strokeStyleKey = meta.key;
+        base.strokeStyleRemote = meta.remote;
+      }
     }
     if ('textStyleId' in node) {
       const tid = (node as TextNode).textStyleId;
-      if (typeof tid === 'string' && tid) base.textStyleId = tid;
+      if (typeof tid === 'string' && tid) {
+        const meta = getStyleMeta(tid);
+        base.textStyleId = tid;
+        base.textStyleKey = meta.key;
+        base.textStyleRemote = meta.remote;
+      }
     }
     if ('effectStyleId' in node) {
       const eid = (node as BlendMixin).effectStyleId;
-      if (typeof eid === 'string' && eid) base.effectStyleId = eid;
+      if (typeof eid === 'string' && eid) {
+        const meta = getStyleMeta(eid);
+        base.effectStyleId = eid;
+        base.effectStyleKey = meta.key;
+        base.effectStyleRemote = meta.remote;
+      }
     }
 
     // Component property definitions (COMPONENT / COMPONENT_SET nodes)
@@ -326,19 +355,39 @@ export function simplifyNode(
     // Standard detail: include style IDs (lightweight, needed for lint) but not variable bindings or component props
     if ('fillStyleId' in node) {
       const fid = (node as GeometryMixin).fillStyleId;
-      if (typeof fid === 'string' && fid) base.fillStyleId = fid;
+      if (typeof fid === 'string' && fid) {
+        const meta = getStyleMeta(fid);
+        base.fillStyleId = fid;
+        base.fillStyleKey = meta.key;
+        base.fillStyleRemote = meta.remote;
+      }
     }
     if ('strokeStyleId' in node) {
       const sid = (node as GeometryMixin).strokeStyleId;
-      if (typeof sid === 'string' && sid) base.strokeStyleId = sid;
+      if (typeof sid === 'string' && sid) {
+        const meta = getStyleMeta(sid);
+        base.strokeStyleId = sid;
+        base.strokeStyleKey = meta.key;
+        base.strokeStyleRemote = meta.remote;
+      }
     }
     if ('textStyleId' in node) {
       const tid = (node as TextNode).textStyleId;
-      if (typeof tid === 'string' && tid) base.textStyleId = tid;
+      if (typeof tid === 'string' && tid) {
+        const meta = getStyleMeta(tid);
+        base.textStyleId = tid;
+        base.textStyleKey = meta.key;
+        base.textStyleRemote = meta.remote;
+      }
     }
     if ('effectStyleId' in node) {
       const eid = (node as BlendMixin).effectStyleId;
-      if (typeof eid === 'string' && eid) base.effectStyleId = eid;
+      if (typeof eid === 'string' && eid) {
+        const meta = getStyleMeta(eid);
+        base.effectStyleId = eid;
+        base.effectStyleKey = meta.key;
+        base.effectStyleRemote = meta.remote;
+      }
     }
   }
 

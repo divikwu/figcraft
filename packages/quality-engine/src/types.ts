@@ -2,7 +2,7 @@
  * Lint engine types — abstract node, rules, violations.
  */
 
-import type { InteractiveKind, InteractiveMeta } from './interactive/taxonomy.js';
+import type { InteractiveMeta } from './interactive/taxonomy.js';
 
 /** Supported UI languages for violation messages. */
 export type Lang = 'en' | 'zh';
@@ -61,6 +61,16 @@ export interface AbstractNode {
   strokeStyleId?: string;
   textStyleId?: string;
   effectStyleId?: string;
+  /** Stable Figma style keys, when the source adapter can resolve them from style IDs. */
+  fillStyleKey?: string;
+  strokeStyleKey?: string;
+  textStyleKey?: string;
+  effectStyleKey?: string;
+  /** Whether the applied style is imported from a library. */
+  fillStyleRemote?: boolean;
+  strokeStyleRemote?: boolean;
+  textStyleRemote?: boolean;
+  effectStyleRemote?: boolean;
   // Effects (shadows, blurs) — used for elevation consistency checks
   effects?: Array<{
     type: string; // DROP_SHADOW, INNER_SHADOW, LAYER_BLUR, BACKGROUND_BLUR
@@ -145,6 +155,11 @@ export interface LintContext {
    * When empty/undefined, foreign-style rule is skipped.
    */
   libraryStyleIds?: Set<string>;
+  /**
+   * Stable style keys belonging to the selected library.
+   * Used with libraryStyleIds because Figma style IDs are document-local.
+   */
+  libraryStyleKeys?: Set<string>;
   /**
    * Set of variable IDs belonging to the selected library (or local file).
    * Used by foreign-variable rule to detect cross-library variable references.

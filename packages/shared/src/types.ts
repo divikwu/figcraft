@@ -92,6 +92,14 @@ export interface CompressedNode {
   strokeStyleId?: string;
   textStyleId?: string;
   effectStyleId?: string;
+  fillStyleKey?: string;
+  strokeStyleKey?: string;
+  textStyleKey?: string;
+  effectStyleKey?: string;
+  fillStyleRemote?: boolean;
+  strokeStyleRemote?: boolean;
+  textStyleRemote?: boolean;
+  effectStyleRemote?: boolean;
   // Component properties
   componentPropertyDefinitions?: Record<string, { type: string; defaultValue?: unknown; variantOptions?: string[] }>;
   componentPropertyReferences?: Record<string, string>;

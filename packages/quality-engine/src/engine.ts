@@ -62,6 +62,7 @@ import type {
   RuleAI,
 } from './types.js';
 import { getContextSeverity, SEVERITY_ORDER } from './types.js';
+import { isVisibleSolidPaint, resolveSolidPaintHex } from './utils/paint.js';
 
 // NOTE: Rules with `suppressesInSubtree` must appear BEFORE the rules they
 // suppress so that same-node suppression works. Cascade-parent rules go first.
@@ -147,11 +148,14 @@ export interface LintReport {
   pagination?: { total: number; offset: number; limit: number; hasMore: boolean };
 }
 
-/** Extract the first visible solid fill hex color from a node (for background propagation). */
-function extractSolidFillHex(node: AbstractNode): string | undefined {
+/** Extract the topmost visible solid fill hex color from a node (for background propagation). */
+function extractSolidFillHex(node: AbstractNode, inheritedBg?: string): string | undefined {
   if (!node.fills) return undefined;
-  const solidFill = node.fills.find((f) => f.type === 'SOLID' && f.visible !== false && f.color);
-  return solidFill?.color;
+  for (let i = node.fills.length - 1; i >= 0; i--) {
+    const fill = node.fills[i];
+    if (isVisibleSolidPaint(fill)) return resolveSolidPaintHex(fill, inheritedBg);
+  }
+  return undefined;
 }
 
 /**
@@ -337,7 +341,7 @@ export function runLint(nodes: AbstractNode[], ctx: LintContext, options: LintOp
     if (node.children) {
       // Propagate background color to children for WCAG contrast checks.
       // The nearest ancestor with a visible solid fill is the effective background.
-      const nodeBg = extractSolidFillHex(node);
+      const nodeBg = extractSolidFillHex(node, node.parentBgColor);
       const effectiveBg = nodeBg ?? node.parentBgColor;
       // Propagate parent width for text overflow checks.
       const effectiveWidth = node.width ?? node.parentWidth;

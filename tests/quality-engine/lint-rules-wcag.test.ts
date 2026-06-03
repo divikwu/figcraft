@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { runLint } from '../../packages/quality-engine/src/engine.js';
 import { wcagContrastRule } from '../../packages/quality-engine/src/rules/wcag/wcag-contrast.js';
 import { wcagLineHeightRule } from '../../packages/quality-engine/src/rules/wcag/wcag-line-height.js';
 import { wcagNonTextContrastRule } from '../../packages/quality-engine/src/rules/wcag/wcag-non-text-contrast.js';
@@ -188,6 +189,52 @@ describe('wcag-contrast', () => {
     });
     const v = wcagContrastRule.check(node, emptyCtx);
     expect(v).toHaveLength(0);
+  });
+});
+
+describe('wcag-contrast alpha compositing', () => {
+  it('uses the composited parent background for text over translucent button fills', () => {
+    const page = makeNode({
+      id: 'page',
+      role: 'page',
+      type: 'FRAME',
+      fills: [{ type: 'SOLID', color: '#ffffff', visible: true }],
+      children: [
+        makeNode({
+          id: 'button',
+          name: 'Product Details',
+          type: 'FRAME',
+          fills: [{ type: 'SOLID', color: '#000000', opacity: 0.04, visible: true }],
+          children: [
+            makeNode({
+              id: 'action',
+              name: 'Action',
+              type: 'TEXT',
+              fontSize: 18,
+              fills: [{ type: 'SOLID', color: '#000000', visible: true }],
+            }),
+          ],
+        }),
+      ],
+    });
+
+    const report = runLint([page], emptyCtx);
+    const violations =
+      report.categories.find((c) => c.rule === 'wcag-contrast')?.nodes.filter((v) => v.nodeId === 'action') ?? [];
+    expect(violations).toHaveLength(0);
+  });
+
+  it('uses the composited foreground color when text fill is translucent', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      fontSize: 14,
+      parentBgColor: '#ffffff',
+      fills: [{ type: 'SOLID', color: '#000000', opacity: 0.2, visible: true }],
+    });
+
+    const v = wcagContrastRule.check(node, emptyCtx);
+    expect(v).toHaveLength(1);
+    expect(v[0].currentValue).not.toBe('21.00:1');
   });
 });
 

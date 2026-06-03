@@ -23,6 +23,7 @@
 import type { AbstractNode, LintContext, LintRule, LintViolation } from '../../types.js';
 import { tr } from '../../types.js';
 import { hexToRgbTuple } from '../../utils/color.js';
+import { isVisibleSolidPaint, resolveSolidPaintRgb } from '../../utils/paint.js';
 import { contrastRatioTuple } from './wcag-helpers.js';
 
 const NON_TEXT_THRESHOLD = 3;
@@ -61,10 +62,10 @@ export const wcagNonTextContrastRule: LintRule = {
 
     if (ikind === 'button-outline') {
       // Outline: stroke is the surface.
-      const stroke = node.strokes?.find((s) => s.type === 'SOLID' && s.visible !== false);
-      if (!stroke?.color) return [];
+      const stroke = node.strokes?.find(isVisibleSolidPaint);
+      if (!stroke) return [];
       if (!node.strokeWeight || node.strokeWeight <= 0) return [];
-      const strokeRgb = hexToRgbTuple(stroke.color);
+      const strokeRgb = resolveSolidPaintRgb(stroke, node.parentBgColor);
       if (!strokeRgb) return [];
       const ratio = contrastRatioTuple(strokeRgb, parentBg);
       if (ratio >= NON_TEXT_THRESHOLD) return [];
@@ -87,9 +88,9 @@ export const wcagNonTextContrastRule: LintRule = {
     }
 
     // button-solid: fill is the surface.
-    const fill = node.fills?.find((f) => f.type === 'SOLID' && f.visible !== false);
-    if (!fill?.color) return [];
-    const fillRgb = hexToRgbTuple(fill.color);
+    const fill = node.fills?.find(isVisibleSolidPaint);
+    if (!fill) return [];
+    const fillRgb = resolveSolidPaintRgb(fill, node.parentBgColor);
     if (!fillRgb) return [];
     const ratio = contrastRatioTuple(fillRgb, parentBg);
     if (ratio >= NON_TEXT_THRESHOLD) return [];

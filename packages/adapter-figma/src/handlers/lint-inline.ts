@@ -15,8 +15,10 @@ import { applyFixDescriptor, builtInDeferredStrategies } from '../utils/fix-appl
 import {
   ensureLoaded,
   getLibraryStyleIdSet,
+  getLibraryStyleKeySet,
   getLibraryVariableIdSet,
   getLocalStyleIdSet,
+  getLocalStyleIdSetForKeys,
 } from '../utils/style-registry.js';
 import { getCachedLang, getCachedModeLibrary } from './write-nodes.js';
 
@@ -37,6 +39,15 @@ export const PRE_RULE_TO_LINT_RULE: Record<string, string> = {
   'no-spacer-frame': 'spacer-frame',
   'no-autolayout-multi-children': 'no-autolayout',
 };
+
+function getStyleMeta(styleId: string): { key?: string; remote?: boolean } {
+  try {
+    const style = figma.getStyleById(styleId);
+    return { key: style?.key, remote: style?.remote };
+  } catch {
+    return {};
+  }
+}
 
 /**
  * Convert a Figma SceneNode directly to AbstractNode for quality-engine.
@@ -84,7 +95,6 @@ export function figmaNodeToAbstract(node: SceneNode): AbstractNode {
             r: solid.color.r,
             g: solid.color.g,
             b: solid.color.b,
-            a: solid.opacity ?? 1,
           });
           entry.opacity = solid.opacity;
         }
@@ -175,19 +185,39 @@ export function figmaNodeToAbstract(node: SceneNode): AbstractNode {
   result.boundVariables = (node as any).boundVariables ?? {};
   if ('fillStyleId' in node) {
     const fsi = (node as any).fillStyleId;
-    if (fsi && fsi !== figma.mixed) result.fillStyleId = fsi;
+    if (fsi && fsi !== figma.mixed) {
+      const meta = getStyleMeta(fsi);
+      result.fillStyleId = fsi;
+      result.fillStyleKey = meta.key;
+      result.fillStyleRemote = meta.remote;
+    }
   }
   if ('strokeStyleId' in node) {
     const ssi = (node as any).strokeStyleId;
-    if (ssi && ssi !== figma.mixed) result.strokeStyleId = ssi;
+    if (ssi && ssi !== figma.mixed) {
+      const meta = getStyleMeta(ssi);
+      result.strokeStyleId = ssi;
+      result.strokeStyleKey = meta.key;
+      result.strokeStyleRemote = meta.remote;
+    }
   }
   if ('textStyleId' in node) {
     const tsi = (node as any).textStyleId;
-    if (tsi && tsi !== figma.mixed) result.textStyleId = tsi;
+    if (tsi && tsi !== figma.mixed) {
+      const meta = getStyleMeta(tsi);
+      result.textStyleId = tsi;
+      result.textStyleKey = meta.key;
+      result.textStyleRemote = meta.remote;
+    }
   }
   if ('effectStyleId' in node) {
     const esi = (node as any).effectStyleId;
-    if (esi && esi !== figma.mixed) result.effectStyleId = esi;
+    if (esi && esi !== figma.mixed) {
+      const meta = getStyleMeta(esi);
+      result.effectStyleId = esi;
+      result.effectStyleKey = meta.key;
+      result.effectStyleRemote = meta.remote;
+    }
   }
 
   // Component properties
@@ -264,6 +294,11 @@ export async function buildLintContextFromStorage(): Promise<LintContext> {
   if (currentMode === 'library' && currentLibrary) {
     await ensureLoaded(currentLibrary);
     let styleIds = getLibraryStyleIdSet();
+    const styleKeys = getLibraryStyleKeySet();
+    if (styleKeys.size > 0) {
+      for (const id of await getLocalStyleIdSetForKeys(styleKeys)) styleIds.add(id);
+      ctx.libraryStyleKeys = styleKeys;
+    }
     // Fallback: if style registry is empty (styles never registered via AI),
     // collect local style IDs (includes imported library styles) as baseline.
     if (styleIds.size === 0) {

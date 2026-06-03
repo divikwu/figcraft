@@ -41,15 +41,19 @@ export interface RegisteredStyles {
 // ─── In-memory maps (built on register/restore, queried on create) ───
 
 /** Text styles keyed by fontSize. Multiple styles can share the same fontSize (e.g. Body/Regular vs Body/Bold). */
-const textStyleMap = new Map<number, Array<{ id: string; name: string; fontFamily: string; fontWeight: string }>>();
+type TextStyleEntry = { id: string; key: string; name: string; fontFamily: string; fontWeight: string };
+type PaintStyleEntry = { id: string; key: string; name: string };
+type EffectStyleEntry = { id: string; key: string; name: string };
+
+const textStyleMap = new Map<number, TextStyleEntry[]>();
 /** Text styles keyed by lowercase name. Parallel index for O(1) name-based lookup (textStyleName binding + font preloading). */
 const textStyleByName = new Map<
   string,
-  { id: string; name: string; fontFamily: string; fontWeight: string; fontSize: number }
+  { id: string; key: string; name: string; fontFamily: string; fontWeight: string; fontSize: number }
 >();
 /** Paint styles keyed by hex. Multiple styles can share the same hex (e.g. Primary/500 vs Info/Default). */
-const paintStyleMap = new Map<string, Array<{ id: string; name: string }>>();
-const effectStyleMap = new Map<string, { id: string; name: string }>();
+const paintStyleMap = new Map<string, PaintStyleEntry[]>();
+const effectStyleMap = new Map<string, EffectStyleEntry>();
 let loadedLibrary: string | null = null;
 
 function storageKey(library: string): string {
@@ -57,9 +61,9 @@ function storageKey(library: string): string {
 }
 
 /** Import a style by key with a timeout to avoid hanging on deleted keys. */
-function importWithTimeout(key: string, timeoutMs = 5000): Promise<{ id: string }> {
+function importWithTimeout(key: string, timeoutMs = 5000): Promise<{ id: string; key: string }> {
   return Promise.race([
-    figma.importStyleByKeyAsync(key),
+    figma.importStyleByKeyAsync(key) as Promise<BaseStyle>,
     new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`Import timeout: ${key}`)), timeoutMs)),
   ]);
 }
@@ -84,6 +88,7 @@ export async function registerStyles(
         return {
           fontSize: ts.fontSize,
           id: imported.id,
+          key: imported.key,
           name: ts.name,
           fontFamily: ts.fontFamily,
           fontWeight: ts.fontWeight,
@@ -93,13 +98,13 @@ export async function registerStyles(
     Promise.allSettled(
       styles.paintStyles.map(async (ps) => {
         const imported = await importWithTimeout(ps.key);
-        return { hex: ps.hex.toLowerCase(), id: imported.id, name: ps.name };
+        return { hex: ps.hex.toLowerCase(), id: imported.id, key: imported.key, name: ps.name };
       }),
     ),
     Promise.allSettled(
       styles.effectStyles.map(async (es) => {
         const imported = await importWithTimeout(es.key);
-        return { effectType: es.effectType, id: imported.id, name: es.name };
+        return { effectType: es.effectType, id: imported.id, key: imported.key, name: es.name };
       }),
     ),
   ]);
@@ -109,6 +114,7 @@ export async function registerStyles(
       const existing = textStyleMap.get(r.value.fontSize) ?? [];
       const entry = {
         id: r.value.id,
+        key: r.value.key,
         name: r.value.name,
         fontFamily: r.value.fontFamily,
         fontWeight: r.value.fontWeight,
@@ -121,12 +127,14 @@ export async function registerStyles(
   for (const r of paintResults) {
     if (r.status === 'fulfilled') {
       const existing = paintStyleMap.get(r.value.hex) ?? [];
-      existing.push({ id: r.value.id, name: r.value.name });
+      existing.push({ id: r.value.id, key: r.value.key, name: r.value.name });
       paintStyleMap.set(r.value.hex, existing);
     }
   }
   for (const r of effectResults) {
-    if (r.status === 'fulfilled') effectStyleMap.set(r.value.effectType, { id: r.value.id, name: r.value.name });
+    if (r.status === 'fulfilled') {
+      effectStyleMap.set(r.value.effectType, { id: r.value.id, key: r.value.key, name: r.value.name });
+    }
   }
 
   // Persist to clientStorage
@@ -169,6 +177,7 @@ export async function ensureLoaded(library: string): Promise<void> {
       for (const ts of textStyles) {
         const entry = {
           id: ts.id,
+          key: ts.key,
           name: ts.name,
           fontFamily: ts.fontName.family,
           fontWeight: ts.fontName.style,
@@ -190,14 +199,14 @@ export async function ensureLoaded(library: string): Promise<void> {
             )
             .join('')}`;
           const existing = paintStyleMap.get(hex) ?? [];
-          existing.push({ id: ps.id, name: ps.name });
+          existing.push({ id: ps.id, key: ps.key, name: ps.name });
           paintStyleMap.set(hex, existing);
         }
       }
       for (const es of effectStyles) {
         const effects = es.effects;
         if (effects.length > 0) {
-          effectStyleMap.set(effects[0].type, { id: es.id, name: es.name });
+          effectStyleMap.set(effects[0].type, { id: es.id, key: es.key, name: es.name });
         }
       }
     } catch (err) {
@@ -395,6 +404,7 @@ export async function registerStylesIncremental(
         return {
           fontSize: ts.fontSize,
           id: style.id,
+          key: style.key,
           name: ts.name,
           fontFamily: ts.fontFamily,
           fontWeight: ts.fontWeight,
@@ -404,13 +414,13 @@ export async function registerStylesIncremental(
     Promise.allSettled(
       changedStyles.paintStyles.map(async (ps) => {
         const style = await importWithTimeout(ps.key);
-        return { hex: ps.hex.toLowerCase(), id: style.id, name: ps.name };
+        return { hex: ps.hex.toLowerCase(), id: style.id, key: style.key, name: ps.name };
       }),
     ),
     Promise.allSettled(
       changedStyles.effectStyles.map(async (es) => {
         const style = await importWithTimeout(es.key);
-        return { effectType: es.effectType, id: style.id, name: es.name };
+        return { effectType: es.effectType, id: style.id, key: style.key, name: es.name };
       }),
     ),
   ]);
@@ -422,6 +432,7 @@ export async function registerStylesIncremental(
       const idx = existing.findIndex((e) => e.name === r.value.name);
       const entry = {
         id: r.value.id,
+        key: r.value.key,
         name: r.value.name,
         fontFamily: r.value.fontFamily,
         fontWeight: r.value.fontWeight,
@@ -437,7 +448,7 @@ export async function registerStylesIncremental(
     if (r.status === 'fulfilled') {
       const existing = paintStyleMap.get(r.value.hex) ?? [];
       const idx = existing.findIndex((e) => e.name === r.value.name);
-      const entry = { id: r.value.id, name: r.value.name };
+      const entry = { id: r.value.id, key: r.value.key, name: r.value.name };
       if (idx >= 0) existing[idx] = entry;
       else existing.push(entry);
       paintStyleMap.set(r.value.hex, existing);
@@ -446,7 +457,7 @@ export async function registerStylesIncremental(
   }
   for (const r of effectResults) {
     if (r.status === 'fulfilled') {
-      effectStyleMap.set(r.value.effectType, { id: r.value.id, name: r.value.name });
+      effectStyleMap.set(r.value.effectType, { id: r.value.id, key: r.value.key, name: r.value.name });
       _imported++;
     }
   }
@@ -660,6 +671,24 @@ export function getLibraryStyleIdSet(): Set<string> {
 }
 
 /**
+ * Collect all registered style keys from the current library into a Set.
+ * Style keys are stable across Figma documents; style IDs are document-local.
+ */
+export function getLibraryStyleKeySet(): Set<string> {
+  const keys = new Set<string>();
+  for (const entries of textStyleMap.values()) {
+    for (const entry of entries) keys.add(entry.key);
+  }
+  for (const entries of paintStyleMap.values()) {
+    for (const entry of entries) keys.add(entry.key);
+  }
+  for (const entry of effectStyleMap.values()) {
+    keys.add(entry.key);
+  }
+  return keys;
+}
+
+/**
  * Collect style IDs from local Figma styles (text, paint, effect).
  * Fallback for when the style registry is empty (styles never registered via AI).
  * Async because it uses Figma's getLocal*StylesAsync APIs.
@@ -675,6 +704,29 @@ export async function getLocalStyleIdSet(): Promise<Set<string>> {
     for (const ts of textStyles) ids.add(ts.id);
     for (const ps of paintStyles) ids.add(ps.id);
     for (const es of effectStyles) ids.add(es.id);
+  } catch {
+    /* best-effort */
+  }
+  return ids;
+}
+
+/**
+ * Collect local/imported style IDs whose stable keys match the selected library registry.
+ * This closes the gap where Figma gives the same library style a different local ID
+ * than the one cached from a previous import.
+ */
+export async function getLocalStyleIdSetForKeys(styleKeys: Set<string>): Promise<Set<string>> {
+  const ids = new Set<string>();
+  if (styleKeys.size === 0) return ids;
+  try {
+    const [textStyles, paintStyles, effectStyles] = await Promise.all([
+      figma.getLocalTextStylesAsync(),
+      figma.getLocalPaintStylesAsync(),
+      figma.getLocalEffectStylesAsync(),
+    ]);
+    for (const ts of textStyles) if (styleKeys.has(ts.key)) ids.add(ts.id);
+    for (const ps of paintStyles) if (styleKeys.has(ps.key)) ids.add(ps.id);
+    for (const es of effectStyles) if (styleKeys.has(es.key)) ids.add(es.id);
   } catch {
     /* best-effort */
   }

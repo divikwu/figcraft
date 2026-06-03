@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { maxNestingDepthRule } from '../../packages/quality-engine/src/rules/layout/max-nesting-depth.js';
 import { screenBottomOverflowRule } from '../../packages/quality-engine/src/rules/layout/screen-bottom-overflow.js';
 import { sectionSpacingCollapseRule } from '../../packages/quality-engine/src/rules/layout/section-spacing-collapse.js';
+import { foreignStyleRule } from '../../packages/quality-engine/src/rules/spec/foreign-style.js';
 import { hardcodedTokenRule } from '../../packages/quality-engine/src/rules/spec/hardcoded-token.js';
 import { ctaWidthInconsistentRule } from '../../packages/quality-engine/src/rules/structure/cta-width-inconsistent.js';
 import { formConsistencyRule } from '../../packages/quality-engine/src/rules/structure/form-consistency.js';
@@ -127,6 +128,81 @@ describe('hardcoded-token', () => {
     const v = hardcodedTokenRule.check(node, libraryCtx);
     const radiusViolations = v.filter((vi) => String(vi.currentValue).includes('cornerRadius'));
     expect(radiusViolations).toHaveLength(0);
+  });
+});
+
+// ─── foreign-style ───
+
+describe('foreign-style', () => {
+  const styleCtx: LintContext = {
+    ...libraryCtx,
+    libraryStyleIds: new Set(['S:selected-local-id']),
+    libraryStyleKeys: new Set(['selected-style-key']),
+  };
+
+  it('passes when the document-local style ID changed but stable style key matches', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      name: 'Title',
+      fontSize: 32,
+      textStyleId: 'S:current-file-id',
+      textStyleKey: 'selected-style-key',
+    });
+
+    expect(foreignStyleRule.check(node, styleCtx)).toHaveLength(0);
+  });
+
+  it('flags a style whose ID and stable key are outside the selected library', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      name: 'Title',
+      fontSize: 32,
+      textStyleId: 'S:foreign-id',
+      textStyleKey: 'foreign-style-key',
+    });
+
+    const violations = foreignStyleRule.check(node, styleCtx);
+    expect(violations).toHaveLength(1);
+    expect(violations[0].rule).toBe('foreign-style');
+  });
+
+  it('does not flag an imported library style when the selected-library style registry is incomplete', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      name: 'Title',
+      fontSize: 32,
+      textStyleId: 'S:current-file-id',
+      textStyleKey: 'missing-from-registry',
+      textStyleRemote: true,
+    });
+
+    expect(foreignStyleRule.check(node, styleCtx)).toHaveLength(0);
+  });
+
+  it('does not flag when style metadata cannot be resolved', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      name: 'Title',
+      fontSize: 32,
+      textStyleId: 'S:unresolved-style-id',
+    });
+
+    expect(foreignStyleRule.check(node, styleCtx)).toHaveLength(0);
+  });
+
+  it('still flags a local style whose ID and key are outside the selected library', () => {
+    const node = makeNode({
+      type: 'TEXT',
+      name: 'Title',
+      fontSize: 32,
+      textStyleId: 'S:local-style-id',
+      textStyleKey: 'local-style-key',
+      textStyleRemote: false,
+    });
+
+    const violations = foreignStyleRule.check(node, styleCtx);
+    expect(violations).toHaveLength(1);
+    expect(violations[0].rule).toBe('foreign-style');
   });
 });
 

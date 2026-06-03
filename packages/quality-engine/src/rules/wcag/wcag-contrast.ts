@@ -9,6 +9,7 @@
 import type { AbstractNode, LintContext, LintRule, LintViolation } from '../../types.js';
 import { tr } from '../../types.js';
 import { hexToRgbTuple } from '../../utils/color.js';
+import { isVisibleSolidPaint, resolveSolidPaintRgb } from '../../utils/paint.js';
 import { contrastRatioTuple, isLargeText } from './wcag-helpers.js';
 
 /**
@@ -40,10 +41,10 @@ export const wcagContrastRule: LintRule = {
     // take the same "skip if backdrop is uncertain" stance.
     if (node.overComplexBg) return [];
 
-    const fgFill = node.fills.find((f) => f.type === 'SOLID' && f.visible !== false);
-    if (!fgFill?.color) return [];
+    const fgFill = node.fills.find(isVisibleSolidPaint);
+    if (!fgFill) return [];
 
-    const fgRgb = hexToRgbTuple(fgFill.color);
+    const fgRgb = resolveSolidPaintRgb(fgFill, node.parentBgColor);
     if (!fgRgb) return [];
 
     const large = isLargeText(node.fontSize, node.fontName?.style);

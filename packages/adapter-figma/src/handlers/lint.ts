@@ -24,8 +24,10 @@ import { findNodeByIdAsync } from '../utils/node-lookup.js';
 import {
   ensureLoaded,
   getLibraryStyleIdSet,
+  getLibraryStyleKeySet,
   getLibraryVariableIdSet,
   getLocalStyleIdSet,
+  getLocalStyleIdSetForKeys,
   getTextStyleId,
 } from '../utils/style-registry.js';
 import { isRgbaLike, isVariableAlias, setSpacingProp } from '../utils/type-guards.js';
@@ -90,6 +92,11 @@ export function registerLintHandlers(): void {
     if (currentMode === 'library' && currentLibrary) {
       await ensureLoaded(currentLibrary);
       let styleIds = getLibraryStyleIdSet();
+      const styleKeys = getLibraryStyleKeySet();
+      if (styleKeys.size > 0) {
+        for (const id of await getLocalStyleIdSetForKeys(styleKeys)) styleIds.add(id);
+        ctx.libraryStyleKeys = styleKeys;
+      }
       // Fallback: if style registry is empty (styles never registered via AI),
       // collect local style IDs (includes imported library styles) as baseline.
       if (styleIds.size === 0) {
@@ -743,7 +750,9 @@ export function registerLintHandlers(): void {
         }
       }
     }
-    targets.forEach((n) => walk(n));
+    for (const target of targets) {
+      walk(target);
+    }
 
     return { cleared };
   });
@@ -872,6 +881,14 @@ function compressedToAbstract(node: CompressedNode): AbstractNode {
     strokeStyleId: node.strokeStyleId,
     textStyleId: node.textStyleId,
     effectStyleId: node.effectStyleId,
+    fillStyleKey: node.fillStyleKey,
+    strokeStyleKey: node.strokeStyleKey,
+    textStyleKey: node.textStyleKey,
+    effectStyleKey: node.effectStyleKey,
+    fillStyleRemote: node.fillStyleRemote,
+    strokeStyleRemote: node.strokeStyleRemote,
+    textStyleRemote: node.textStyleRemote,
+    effectStyleRemote: node.effectStyleRemote,
     effects: node.effects as AbstractNode['effects'],
     componentPropertyDefinitions: node.componentPropertyDefinitions,
     componentPropertyReferences: node.componentPropertyReferences,

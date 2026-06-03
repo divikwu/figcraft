@@ -7,11 +7,40 @@
  * This rule closes that gap by verifying the style actually belongs to the
  * selected library — not a leftover from a different library or file.
  *
- * Only active in library mode when libraryStyleIds is populated.
+ * Only active in library mode when libraryStyleIds or libraryStyleKeys is populated.
  */
 
 import type { AbstractNode, FixDescriptor, LintContext, LintRule, LintViolation } from '../../types.js';
 import { tr } from '../../types.js';
+
+function hasKnownLibraryStyles(ctx: LintContext): boolean {
+  return (ctx.libraryStyleIds?.size ?? 0) > 0 || (ctx.libraryStyleKeys?.size ?? 0) > 0;
+}
+
+function belongsToSelectedLibrary(ctx: LintContext, styleId?: string, styleKey?: string): boolean {
+  if (styleId && ctx.libraryStyleIds?.has(styleId)) return true;
+  if (styleKey && ctx.libraryStyleKeys?.has(styleKey)) return true;
+  return false;
+}
+
+function shouldReportForeignStyle(
+  ctx: LintContext,
+  styleId: string | undefined,
+  styleKey: string | undefined,
+  styleRemote: boolean | undefined,
+): boolean {
+  if (!styleId) return false;
+  if (belongsToSelectedLibrary(ctx, styleId, styleKey)) return false;
+
+  // The selected-library style registry can be partial/stale because library
+  // styles are restored from cached registered keys. Figma can still tell us
+  // that the applied style is remote/imported; in that case we cannot prove it
+  // belongs to another library, so avoid a noisy false positive.
+  if (styleRemote === true) return false;
+  if (styleRemote !== false && !styleKey) return false;
+
+  return true;
+}
 
 export const foreignStyleRule: LintRule = {
   name: 'foreign-style',
@@ -26,9 +55,9 @@ export const foreignStyleRule: LintRule = {
   },
 
   check(node: AbstractNode, ctx: LintContext): LintViolation[] {
-    // Only active in library mode with a library selected and style IDs populated
+    // Only active in library mode with a library selected and style references populated
     if (ctx.mode !== 'library' || !ctx.selectedLibrary) return [];
-    if (!ctx.libraryStyleIds || ctx.libraryStyleIds.size === 0) return [];
+    if (!hasKnownLibraryStyles(ctx)) return [];
 
     // NOTE: Unlike hardcoded-token / spec-color, this rule does NOT skip
     // insideComponentSubtree. Cross-library style references are a dependency
@@ -39,7 +68,7 @@ export const foreignStyleRule: LintRule = {
     const violations: LintViolation[] = [];
 
     // Check fillStyleId
-    if (node.fillStyleId && !ctx.libraryStyleIds.has(node.fillStyleId)) {
+    if (shouldReportForeignStyle(ctx, node.fillStyleId, node.fillStyleKey, node.fillStyleRemote)) {
       violations.push({
         nodeId: node.id,
         nodeName: node.name,
@@ -63,7 +92,7 @@ export const foreignStyleRule: LintRule = {
     }
 
     // Check textStyleId
-    if (node.textStyleId && !ctx.libraryStyleIds.has(node.textStyleId)) {
+    if (shouldReportForeignStyle(ctx, node.textStyleId, node.textStyleKey, node.textStyleRemote)) {
       const hasValidFontSize = node.fontSize != null;
       violations.push({
         nodeId: node.id,
@@ -82,7 +111,7 @@ export const foreignStyleRule: LintRule = {
     }
 
     // Check effectStyleId
-    if (node.effectStyleId && !ctx.libraryStyleIds.has(node.effectStyleId)) {
+    if (shouldReportForeignStyle(ctx, node.effectStyleId, node.effectStyleKey, node.effectStyleRemote)) {
       violations.push({
         nodeId: node.id,
         nodeName: node.name,
