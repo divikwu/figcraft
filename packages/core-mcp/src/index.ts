@@ -17,8 +17,17 @@ import { Bridge } from './bridge.js';
 import { registerPrompts } from './prompts/index.js';
 import { registerDesignRulesResources } from './resources/design-rules.js';
 import {
+  CODE_MODE_ONLY_KEEP,
+  codeModeOptionsFromEnv,
+  registerCodeModeTools,
+  resolveCodeMode,
+} from './tools/code-mode/index.js';
+import {
+  disableAllClassicTools,
   disableNonCoreTools,
   getAccessLevel,
+  getToolCatalog,
+  isToolBlocked,
   registerAllTools,
   registerToolsetMetaTools,
 } from './tools/toolset-manager.js';
@@ -33,7 +42,14 @@ interface McpRuntime {
   shutdown: () => void;
 }
 
+const CODE_MODE_INSTRUCTIONS =
+  ' Code Mode is enabled: every FigCraft tool is a method figcraft.<tool>(args) inside `execute` (read-only) ' +
+  'or `execute_write` (may modify the document); use `search` to get signatures and batch multi-step work ' +
+  '(inspect → lint → fix → verify) in one call. Call get_mode and confirm the design proposal with the user ' +
+  'before any UI creation.';
+
 function createRuntime(): McpRuntime {
+  const codeMode = resolveCodeMode();
   const server = new McpServer(
     { name: 'FigCraft', version: VERSION },
     {
@@ -43,7 +59,8 @@ function createRuntime(): McpRuntime {
         'instead of any other Figma MCP\'s "use_figma" or equivalent. ' +
         "FigCraft's create_frame includes an Opinion Engine that automatically handles sizing inference, FILL ordering, " +
         'conflict detection, token binding, and failure cleanup — bypassing it causes common Figma API pitfalls. ' +
-        'Mandatory workflow: call get_mode first → follow _workflow instructions → present design proposal → wait for user confirmation → create.',
+        'Mandatory workflow: call get_mode first → follow _workflow instructions → present design proposal → wait for user confirmation → create.' +
+        (codeMode === 'off' ? '' : CODE_MODE_INSTRUCTIONS),
     },
   );
 
@@ -52,8 +69,16 @@ function createRuntime(): McpRuntime {
   setBridgeTokenProvider(() => bridge.getApiToken());
 
   registerAllTools(server, bridge);
-  registerToolsetMetaTools(server);
+  // In Code Mode "only" the toolset meta tools are pointless: every tool is reachable from `execute`.
+  if (codeMode !== 'only') registerToolsetMetaTools(server);
   disableNonCoreTools(server);
+  if (codeMode !== 'off') {
+    registerCodeModeTools(server, codeModeOptionsFromEnv({ catalog: getToolCatalog(), isToolBlocked }));
+    if (codeMode === 'only') {
+      const hidden = disableAllClassicTools(server, CODE_MODE_ONLY_KEEP);
+      console.error(`[FigCraft code-mode] "only" mode: ${hidden} classic tools hidden from tools/list`);
+    }
+  }
   registerPrompts(server);
   registerDesignRulesResources(server);
 

@@ -235,6 +235,7 @@ See [docs/generated/lint-rules.md](docs/generated/lint-rules.md) for the complet
 | `FIGCRAFT_CHANNEL` | Channel ID | `figcraft` |
 | `FIGMA_API_TOKEN` | Figma Personal Access Token (for REST API fallback; can also be set in plugin UI or via OAuth) | — |
 | `FIGCRAFT_ACCESS` | Access control level: `read`, `create`, or `edit` | `edit` |
+| `FIGCRAFT_CODE_MODE` | `only` / `on`: expose all tools through `search` + `execute` (read-only) + `execute_write` ([Code Mode](docs/code-mode.md), ~1.6k tokens of tool definitions instead of ~17k) | `off` |
 
 ## Development
 

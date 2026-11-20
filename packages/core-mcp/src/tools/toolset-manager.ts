@@ -33,6 +33,7 @@ import {
 import { registerAuditTools } from './audit.js';
 import { registerAuthTools } from './auth.js';
 import { registerChannelTools } from './channel.js';
+import { installToolRecorder, ToolCatalog } from './code-mode/catalog.js';
 import { registerCreateFrame } from './create-frame.js';
 import { registerCreationGuide } from './creation-guide.js';
 import { registerEndpointTools } from './endpoints.js';
@@ -63,6 +64,13 @@ const TOOLSETS = GENERATED_TOOLSETS;
 
 const loadedToolsets = new Set<string>();
 const toolHandles = new Map<string, RegisteredTool>();
+/** Every tool registered by registerAllTools (name, description, schema, callback) — used by Code Mode. */
+const toolCatalog = new ToolCatalog();
+
+/** Catalog of all tools registered by registerAllTools(), for Code Mode. */
+export function getToolCatalog(): ToolCatalog {
+  return toolCatalog;
+}
 
 // ─── Access control (3-tier) ───
 // FIGCRAFT_ACCESS controls which tools are available:
@@ -232,6 +240,9 @@ export function registerAllTools(server: McpServer, bridge: Bridge): void {
   const pipeline = createHarnessPipeline(bridge);
   bridge.setPipeline(pipeline);
 
+  // Record every registration so Code Mode can call tools in-process.
+  const stopRecording = installToolRecorder(server, toolCatalog);
+
   // Register every tool group (same as original index.ts)
   registerPing(server, bridge);
   registerAuthTools(server);
@@ -273,6 +284,8 @@ export function registerAllTools(server: McpServer, bridge: Bridge): void {
 
   // Register ghost tools for removed flat tools (Phase 3 migration guidance)
   registerRemovedToolGhosts(server);
+
+  stopRecording();
 
   // Snapshot all handles from the server's internal registry
   const captured = captureToolHandles(server);
@@ -520,6 +533,23 @@ export function disableNonCoreTools(server: McpServer): void {
   }
 
   server.sendToolListChanged();
+}
+
+/**
+ * Code Mode "only": hide classic tools from the client, except those in `keep`. The tools stay
+ * registered (and callable from Code Mode), they just no longer appear in tools/list.
+ */
+export function disableAllClassicTools(server: McpServer, keep: ReadonlySet<string> = new Set()): number {
+  let disabled = 0;
+  for (const [name, handle] of toolHandles) {
+    if (keep.has(name)) {
+      if (!handle.enabled && !isToolBlocked(name)) safeEnable(handle);
+      continue;
+    }
+    if (handle.enabled && safeDisable(handle)) disabled++;
+  }
+  server.sendToolListChanged();
+  return disabled;
 }
 
 // ─── Internal helpers ───

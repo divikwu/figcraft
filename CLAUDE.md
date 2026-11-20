@@ -264,6 +264,7 @@ FIGCRAFT_RELAY_URL=ws://localhost:3055    # Relay address (default, usually no n
 FIGCRAFT_RELAY_PORT=3055                  # Relay preferred port (default 3055, auto-switches to 3056-3060 if occupied)
 FIGCRAFT_CHANNEL=figcraft                 # Default channel (both Plugin and MCP Server default to figcraft)
 FIGCRAFT_ACCESS=edit                      # Access level: read | create | edit (default: edit). Controls which tools are available.
+FIGCRAFT_CODE_MODE=off                    # Code Mode: off | on | only. Exposes all tools via search + execute/execute_write (docs/code-mode.md)
 FIGMA_API_TOKEN=figd_xxx                  # Figma Personal Access Token (optional, can also be configured in plugin panel)
 FIGMA_CLIENT_ID=xxx                       # OAuth 2.0 Client ID (optional, for figma_login)
 FIGMA_CLIENT_SECRET=xxx                   # OAuth 2.0 Client Secret (optional, for figma_login)
